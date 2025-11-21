@@ -1,0 +1,7 @@
+data/dec-4-24/*
+data/june-17-25/*
+data/mar-1-25/*
+data/sept-1-25/*.gz
+data/sept-1-25/reviews*
+.DS_Store
+*.ipynb

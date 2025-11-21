@@ -1,11 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/map.css" />
+        <link rel="stylesheet" href="css/style.css" />
+        <title>Airbnb Price Explore - San Francisco Region</title>
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
+            rel="stylesheet" />
+        <script src="js/map.js" type="module"></script>
+    </head>
+    <body>
+
+        <header>
+            <h1>Airbnb Price Explore - San Francisco Region</h1>
+
+            <!-- <label id="time-filter">
+            <div class="slider-row">
+                Filter by time:
+                <input type="range" id="time-slider" min="-1" max="1440" value="-1">
+            </div>
+
+            <div class="time-row">
+                <time id="selected-time"></time>
+                <em id="any-time">(any time)</em>
+            </div>
+        </label> -->
+
+        </header>
+
+        <!-- dropdown menu -->
+        <div class="dropdowns">
+            <div class="dropdown">
+                <label for="neighborhood-select">Select Neighborhood:</label>
+                <select id="neighborhood-select">
+                    <option value="all">All Neighborhoods</option>
+                </select>
+            </div>
+
+            <div class="dropdown">
+                <label for="room-type-select">Select Room Type:</label>
+                <select id="room-type-select">
+                    <option value="all">All Room Types</option>
+                </select>
+            </div>
+
+
+            <!-- <div class="dropdown">
+                <label for="neighborhood-select">Select Neighborhood:</label>
+                <select id="neighborhood-select">
+                    <option value="all">All Neighborhoods</option>
+                </select>
+            </div> -->
+        </div>
+
+        <div id="map"><svg></svg></div>
+        <div class="tooltip">
+            <div id="neighborhood-name"></div>
+            <div class="pies">
+                <div class="pie-group">
+                    <div class="pie-title">Superhosts</div>
+                    <svg class="pie" id="pie1-superhost" width="100"
+                        height="100"></svg>
+                </div>
+
+                <div class="pie-group">
+                    <div class="pie-title">Non-Superhosts</div>
+                    <svg class="pie" id="pie2-non-superhost" width="100"
+                        height="100"></svg>
+                </div>
+            </div>
+            <div class="tooltip-legends"></div>
+        </div>
+
+        <!-- <div>
+            <div class="pies" id="pies-all">
+                <div class="pie-group">
+                    <div class="pie-title">Superhosts</div>
+                    <svg class="pie" id="pie1-superhost-all" width="120" height="120"></svg>
+                </div>
+                <div class="pie-group">
+                    <div class="pie-title">Non-Superhosts</div>
+                    <svg class="pie" id="pie2-non-superhost-all" width="120" height="120"></svg>
+                </div>
+            </div>
+        </div> -->
+    </body>
 </html>
