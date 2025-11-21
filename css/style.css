@@ -1,3 +1,14 @@
+:root {
+  --color-a: #ff9999;
+  --color-b: #99ccff;
+  --color-c: #a5d6a7;
+  --color-d: #ffcc80;
+  --color-equal: rgb(161, 214, 165);
+  --color-less-than: rgba(70, 131, 180, 0.779);
+  --color-greater-than: rgba(255, 140, 0, 0.774);
+}
+
+
 body {
   font: 100%/1.5 system-ui, sans-serif;
   display: flex;
@@ -15,4 +26,35 @@ header {
   gap: 1em;
   padding: 0.75em 1.25em;
   width: 100%;
+}
+
+.legends {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.25em; 
+  font-size: 0.9em;
+  margin-block: 1em;
+}
+
+.legends-label {
+  font-weight: 600;
+  margin-right: 0.5em;
+}
+
+.legends > div {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+
+.legends > div::before {
+  content: "";
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 4px;
+  background: var(--color);
+  border: 1px solid #ccc;
+  display: inline-block;
 }

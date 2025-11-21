@@ -13,7 +13,7 @@
     <body>
 
         <header>
-            <h1>Airbnb Price Explore - San Francisco Region</h1>
+            <h1>Airbnb Price Explorer - San Francisco Region</h1>
 
             <!-- <label id="time-filter">
             <div class="slider-row">
@@ -31,20 +31,20 @@
 
         <!-- dropdown menu -->
         <div class="dropdowns">
-            <div class="dropdown">
+            <!-- <div class="dropdown">
                 <label for="neighborhood-select">Select Neighborhood:</label>
                 <select id="neighborhood-select">
                     <option value="all">All Neighborhoods</option>
                 </select>
-            </div>
+            </div> -->
 
             <div class="dropdown">
-                <label for="room-type-select">Select Room Type:</label>
+                <label for="room-type-select">Select Room Type to
+                    Comparison:</label>
                 <select id="room-type-select">
                     <option value="all">All Room Types</option>
                 </select>
             </div>
-
 
             <!-- <div class="dropdown">
                 <label for="neighborhood-select">Select Neighborhood:</label>
@@ -52,6 +52,11 @@
                     <option value="all">All Neighborhoods</option>
                 </select>
             </div> -->
+        </div>
+
+        <div class="checkbox">
+            <input type="checkbox" id="review-checkbox" unchecked>
+            <label for="review-checkbox">based on reviews</label>
         </div>
 
         <div id="map"><svg></svg></div>
@@ -85,5 +90,13 @@
                 </div>
             </div>
         </div> -->
+
+        <div class="legends">
+            <span class="legend-label">Legend:</span>
+            <div style="--color: var(--color-greater-than)" class="legend">Superhosts Lead<span class="legend-annotation"></span></div>
+            <div style="--color: var(--color-equal)" class="legend">Balanced<span class="legend-annotation"></span></div>
+            <div style="--color: var(--color-less-than)" class="legend">Non-Superhosts Lead<span class="legend-annotation"></span></div>
+        </div>
+
     </body>
 </html>

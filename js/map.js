@@ -14,6 +14,16 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 //   minZoom: 5,
 //   maxZoom: 18,
 // });
+
+const root = getComputedStyle(document.documentElement);
+const colorA = root.getPropertyValue("--color-a").trim();
+const colorB = root.getPropertyValue("--color-b").trim();
+const colorC = root.getPropertyValue("--color-c").trim();
+const colorD = root.getPropertyValue("--color-d").trim();
+const colorGreaterThan = root.getPropertyValue("--color-greater-than").trim();
+const colorLessThan = root.getPropertyValue("--color-less-than").trim();
+const colorEqual = root.getPropertyValue("--color-equal").trim();
+
 let roomTypeColor;
 
 function getAvgPriceByNeighbourhood(listings) {
@@ -28,7 +38,16 @@ function groupCount(data, ...keys) {
   return d3.rollup(data, (v) => v.length, ...keys.map((k) => (d) => d[k]));
 }
 
+function groupMean(data, valueKey, ...keys) {
+  return d3.rollup(
+    data,
+    (v) => d3.mean(v, (d) => d[valueKey]),
+    ...keys.map((k) => (d) => d[k])
+  );
+}
+
 function createTooltipLegends(tooltipLegends, roomTypes) {
+  if (!roomTypes) return;
   Array.from(roomTypes.keys()).forEach((roomType) => {
     const legendItem = tooltipLegends
       .append("div")
@@ -77,17 +96,30 @@ function prepareAggregates(listingsFiltered) {
   const nonSuperHostData = listingsFiltered.filter(
     (d) => d.host_is_superhost === "f"
   );
-  const roomTypesArray = Array.from(groupCount(listingsFiltered, "room_type").keys())
-  roomTypeColor = d3.scaleOrdinal()
+  const roomTypesArray = Array.from(
+    groupCount(listingsFiltered, "room_type").keys()
+  );
+  roomTypeColor = d3
+    .scaleOrdinal()
     .domain(roomTypesArray)
-    .range(["#ff9999", "#99ccff", "#a5d6a7", "#ffcc80"]);
-  console.log("Room Types Array:", roomTypesArray);
-  console.log("Room Type Color Scale:", roomTypeColor.domain(), roomTypeColor.range());
+    .range([colorA, colorB, colorC, colorD]);
+
   return {
     roomTypes: roomTypesArray,
     avgPriceByNeighbourhood: getAvgPriceByNeighbourhood(listingsFiltered),
     countByNeighbourhood: groupCount(
       listingsFiltered,
+      "neighbourhood_cleansed"
+    ),
+    allCounts: groupCount(
+      listingsFiltered,
+      "host_is_superhost",
+      "neighbourhood_cleansed"
+    ),
+    allReviewScores: groupMean(
+      listingsFiltered,
+      "review_scores_rating",
+      "host_is_superhost",
       "neighbourhood_cleansed"
     ),
     superHostRoomTypeCounts: groupCount(
@@ -102,6 +134,13 @@ function prepareAggregates(listingsFiltered) {
     ),
     allRoomTypeCounts: groupCount(
       listingsFiltered,
+      "neighbourhood_cleansed",
+      "room_type"
+    ),
+    reviewScores: groupMean(
+      listingsFiltered,
+      "review_scores_rating",
+      "host_is_superhost",
       "neighbourhood_cleansed",
       "room_type"
     ),
@@ -163,33 +202,93 @@ function setupEventHandlers(svg, agg) {
     });
 }
 
-function updateBasedOnDropdowns(roomTypeSelector, svg, agg) {
+function colorByRoomType(name, selectedRoomType, agg) {
+  let superCount;
+  let nonCount;
+  if (selectedRoomType === "All") {
+    superCount = agg.allCounts.get("t")?.get(name) || 0;
+    nonCount = agg.allCounts.get("f")?.get(name) || 0;
+  } else {
+    superCount =
+      agg.superHostRoomTypeCounts.get(name)?.get(selectedRoomType) || 0;
+    nonCount =
+      agg.nonSuperHostRoomTypeCounts.get(name)?.get(selectedRoomType) || 0;
+  }
+
+  if (superCount > nonCount) return colorGreaterThan;
+  if (nonCount > superCount) return colorLessThan;
+
+  if (superCount === 0 && nonCount === 0) return "#e6e6e6";
+  return colorEqual;
+}
+
+function colorByReview(name, selectedRoomType, agg) {
+  let superScore;
+  let nonScore;
+  if (selectedRoomType === "All") {
+    superScore = agg.allReviewScores.get("t")?.get(name) || 0;
+    nonScore = agg.allReviewScores.get("f")?.get(name) || 0;
+  } else {
+    superScore =
+      agg.reviewScores.get("t")?.get(name)?.get(selectedRoomType) || 0;
+    nonScore = agg.reviewScores.get("f")?.get(name)?.get(selectedRoomType) || 0;
+  }
+  if (superScore > nonScore) return colorGreaterThan;
+  if (nonScore > superScore) return colorLessThan;
+
+  if (superScore === 0 && nonScore === 0) return "#e6e6e6";
+  return colorEqual;
+}
+
+function updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg, agg) {
   roomTypeSelector.on("change", function () {
     const selectedRoomType = this.value;
-    if (selectedRoomType !== "All") {
+    if (selectedRoomType === "all") {
+      resetMapColor(svg, agg, reviewCheckBox);
+    } else {
       svg.selectAll("path").attr("fill", (d) => {
         const name = d.properties.neighbourhood;
-
-        const superHostC = agg.superHostRoomTypeCounts.get(name) || new Map();
-        const nonSuperHostC =
-          agg.nonSuperHostRoomTypeCounts.get(name) || new Map();
-
-        const superHostCR = superHostC.get(selectedRoomType) || 0;
-        const nonSuperHostCR = nonSuperHostC.get(selectedRoomType) || 0;
-
-        if (superHostCR > nonSuperHostCR) {
-          return "#ff9999";
-        } else if (nonSuperHostCR > superHostCR) {
-          return "#99ccff";
-        } else if (superHostCR === 0 && nonSuperHostCR === 0) {
-          return "#e6e6e6";
+        if (reviewCheckBox.checked) {
+          d3.selectAll(".legend-annotation").text(" (by avg review scores)");
+          return colorByReview(name, selectedRoomType, agg);
         } else {
-          return "#ff6666";
+          d3.selectAll(".legend-annotation").text(" (by room type counts)");
+          return colorByRoomType(name, selectedRoomType, agg);
         }
       });
-    } else {
-      svg.selectAll("path").attr("fill", "#e6e6e6");
     }
+  });
+}
+
+function updateBasedOnReview(checkBox, svg, agg, roomTypeSelector) {
+  checkBox.addEventListener("change", function () {
+    const selectedRoomType = roomTypeSelector.node().value;
+    console.log("selectedRoomType:", selectedRoomType);
+    if (selectedRoomType === "all") {
+      resetMapColor(svg, agg, checkBox);
+    } else {
+      svg.selectAll("path").attr("fill", (d) => {
+        const name = d.properties.neighbourhood;
+        if (checkBox.checked) {
+          d3.selectAll(".legend-annotation").text(" (by avg review scores)");
+          return colorByReview(name, selectedRoomType, agg);
+        }
+        d3.selectAll(".legend-annotation").text(" (by room type counts)");
+        return colorByRoomType(name, selectedRoomType, agg);
+      });
+    }
+  });
+}
+
+function resetMapColor(svg, agg, checkBox) {
+  svg.selectAll("path").attr("fill", (d) => {
+    const name = d.properties.neighbourhood;
+    if (checkBox.checked) {
+      d3.selectAll(".legend-annotation").text(" (by avg review scores)");
+      return colorByReview(name, "All", agg);
+    }
+    d3.selectAll(".legend-annotation").text(" (by total listings)");
+    return colorByRoomType(name, "All", agg);
   });
 }
 
@@ -203,12 +302,12 @@ Promise.all([
   const listingsFiltered = listings.filter(
     (d) => d.review_scores_rating !== ""
   );
+  const reviewCheckBox = d3.select("#review-checkbox").node();
 
   const aggregates = prepareAggregates(listingsFiltered);
   console.log(aggregates);
-  const roomTypes = aggregates.roomTypes;
   const svg = setupMap(geo);
-
+  resetMapColor(svg, aggregates, reviewCheckBox);
   setupEventHandlers(svg, aggregates);
 
   const neighbourhoodSelector = d3.select("#neighborhood-select");
@@ -220,9 +319,10 @@ Promise.all([
   });
 
   const roomTypeSelector = d3.select("#room-type-select");
-  roomTypes.forEach((roomType) => {
+  aggregates.roomTypes.forEach((roomType) => {
     roomTypeSelector.append("option").attr("value", roomType).text(roomType);
   });
 
-  updateBasedOnDropdowns(roomTypeSelector, svg, aggregates);
+  updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg, aggregates);
+  updateBasedOnReview(reviewCheckBox, svg, aggregates, roomTypeSelector);
 });
