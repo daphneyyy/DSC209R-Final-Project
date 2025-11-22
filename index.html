@@ -30,7 +30,7 @@
         </header>
 
         <!-- dropdown menu -->
-        <div class="dropdowns">
+        <section id="dropdowns">
             <!-- <div class="dropdown">
                 <label for="neighborhood-select">Select Neighborhood:</label>
                 <select id="neighborhood-select">
@@ -52,51 +52,56 @@
                     <option value="all">All Neighborhoods</option>
                 </select>
             </div> -->
-        </div>
+        </section>
 
-        <div class="checkbox">
+        <section id="checkbox">
             <input type="checkbox" id="review-checkbox" unchecked>
             <label for="review-checkbox">based on reviews</label>
-        </div>
+        </section>
 
-        <div id="map"><svg></svg></div>
-        <div class="tooltip">
-            <div id="neighborhood-name"></div>
-            <div class="pies">
-                <div class="pie-group">
-                    <div class="pie-title">Superhosts</div>
-                    <svg class="pie" id="pie1-superhost" width="100"
-                        height="100"></svg>
-                </div>
-
-                <div class="pie-group">
-                    <div class="pie-title">Non-Superhosts</div>
-                    <svg class="pie" id="pie2-non-superhost" width="100"
-                        height="100"></svg>
-                </div>
-            </div>
-            <div class="tooltip-legends"></div>
-        </div>
-
-        <!-- <div>
-            <div class="pies" id="pies-all">
-                <div class="pie-group">
-                    <div class="pie-title">Superhosts</div>
-                    <svg class="pie" id="pie1-superhost-all" width="120" height="120"></svg>
-                </div>
-                <div class="pie-group">
-                    <div class="pie-title">Non-Superhosts</div>
-                    <svg class="pie" id="pie2-non-superhost-all" width="120" height="120"></svg>
+        <section id="graphs">
+            <div id="map-and-graph-container">
+                <div id="map">
+                    <svg></svg>
+                    <div class="legends">
+                        <span class="legend-label">Legend:</span>
+                        <div style="--color: var(--color-greater-than)"
+                            class="legend">Superhosts Lead<span
+                                class="legend-annotation"></span></div>
+                        <div style="--color: var(--color-equal)"
+                            class="legend">Balanced<span
+                                class="legend-annotation"></span></div>
+                        <div style="--color: var(--color-less-than)"
+                            class="legend">Non-Superhosts Lead<span
+                                class="legend-annotation"></span></div>
+                    </div></div>
+                <div id="bar-chart-container">
+                    <div class="bar-chart-title">Neighborhood: <span
+                            id="selected-neighborhood-name"
+                            class="neighborhood-name">All</span></div>
+                    <svg id="avg-revenue-bar" class="bar"></svg>
+                    <svg id="review-score-hist" class="hist"></svg>
                 </div>
             </div>
-        </div> -->
 
-        <div class="legends">
-            <span class="legend-label">Legend:</span>
-            <div style="--color: var(--color-greater-than)" class="legend">Superhosts Lead<span class="legend-annotation"></span></div>
-            <div style="--color: var(--color-equal)" class="legend">Balanced<span class="legend-annotation"></span></div>
-            <div style="--color: var(--color-less-than)" class="legend">Non-Superhosts Lead<span class="legend-annotation"></span></div>
-        </div>
+            <div class="tooltip">
+                <div id="neighborhood-name" class="neighborhood-name"></div>
+                <div class="pies">
+                    <div class="pie-group">
+                        <div class="pie-title">Superhosts</div>
+                        <svg class="pie" id="pie1-superhost" width="100"
+                            height="100"></svg>
+                    </div>
+
+                    <div class="pie-group">
+                        <div class="pie-title">Non-Superhosts</div>
+                        <svg class="pie" id="pie2-non-superhost" width="100"
+                            height="100"></svg>
+                    </div>
+                </div>
+                <div class="tooltip-legends"></div>
+            </div>
+        </section>
 
     </body>
 </html>

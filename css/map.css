@@ -16,12 +16,26 @@ html {
   width: 100%;
 }
 
+#map-and-graph-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
 #map {
   width: 100%; /* Adjust width to your desired size */
   height: 100%; /* Adjust height to your desired size */
   border-radius: 8px; /* Optional: rounded corners */
   margin: auto;
 }
+
+#bar-chart-container {
+  display: flex;
+  flex-direction: column;
+}
+
 
 .tooltip {
   position: absolute;
@@ -36,7 +50,7 @@ html {
   font-size: 14px;
 }
 
-#neighborhood-name {
+.neighborhood-name {
   font-weight: bold;
   margin-bottom: 6px;
   text-align: center;

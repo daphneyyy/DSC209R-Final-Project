@@ -48,7 +48,6 @@ header {
   gap: 0.35em;
 }
 
-
 .legends > div::before {
   content: "";
   width: 1.1em;
@@ -57,6 +56,10 @@ header {
   background: var(--color);
   border: 1px solid #ccc;
   display: inline-block;
+}
+
+.legend {
+  flex-wrap: wrap;
 }
 
 select {

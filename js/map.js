@@ -1,5 +1,6 @@
 // import mapboxgl from "https://cdn.jsdelivr.net/npm/mapbox-gl@2.15.0/+esm";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
+import { drawPie, drawBarChart, drawReviewScoreHistogram } from "./draw.js";
 
 // console.log("Mapbox GL JS Loaded:", mapboxgl);
 
@@ -26,10 +27,10 @@ const colorEqual = root.getPropertyValue("--color-equal").trim();
 
 let roomTypeColor;
 
-function getAvgPriceByNeighbourhood(listings) {
+function getAvgEstimatedRevenueByNeighbourhood(listings) {
   return d3.rollup(
     listings,
-    (v) => d3.mean(v, (d) => d.price),
+    (v) => d3.mean(v, (d) => d.estimated_revenue_l365d),
     (d) => d.neighbourhood_cleansed
   );
 }
@@ -61,34 +62,6 @@ function createTooltipLegends(tooltipLegends, roomTypes) {
   });
 }
 
-function drawPie(svgId, countsMap) {
-  const svg = d3.select(svgId);
-  svg.selectAll("*").remove();
-
-  const width = +svg.attr("width"),
-    height = +svg.attr("height"),
-    radius = Math.min(width, height) / 2;
-
-  const g = svg
-    .append("g")
-    .attr("transform", `translate(${width / 2}, ${height / 2})`);
-
-  const entries = Array.from(countsMap.keys());
-  const values = Array.from(countsMap.values());
-  const pie = d3.pie();
-  const arcs = pie(values);
-
-  const arc = d3.arc().innerRadius(0).outerRadius(radius);
-
-  g.selectAll("path")
-    .data(arcs)
-    .join("path")
-    .attr("d", arc)
-    .attr("fill", (d, i) => roomTypeColor(entries[i]))
-    .attr("stroke", "#fff")
-    .attr("stroke-width", 1);
-}
-
 function prepareAggregates(listingsFiltered) {
   const superHostData = listingsFiltered.filter(
     (d) => d.host_is_superhost === "t"
@@ -105,22 +78,28 @@ function prepareAggregates(listingsFiltered) {
     .range([colorA, colorB, colorC, colorD]);
 
   return {
+    allData: listingsFiltered,
     roomTypes: roomTypesArray,
-    avgPriceByNeighbourhood: getAvgPriceByNeighbourhood(listingsFiltered),
     countByNeighbourhood: groupCount(
       listingsFiltered,
       "neighbourhood_cleansed"
     ),
-    allCounts: groupCount(
+    allCountsByNeighborhood: groupCount(
       listingsFiltered,
+      "host_is_superhost",
+      "neighbourhood_cleansed"
+    ),
+    allCounts: groupCount(listingsFiltered, "host_is_superhost"),
+    allReviewScoresByNeighborhood: groupMean(
+      listingsFiltered,
+      "review_scores_rating",
       "host_is_superhost",
       "neighbourhood_cleansed"
     ),
     allReviewScores: groupMean(
       listingsFiltered,
       "review_scores_rating",
-      "host_is_superhost",
-      "neighbourhood_cleansed"
+      "host_is_superhost"
     ),
     superHostRoomTypeCounts: groupCount(
       superHostData,
@@ -143,6 +122,25 @@ function prepareAggregates(listingsFiltered) {
       "host_is_superhost",
       "neighbourhood_cleansed",
       "room_type"
+    ),
+    reviewScoresAll: groupMean(
+      listingsFiltered,
+      "review_scores_rating",
+      "room_type",
+      "host_is_superhost"
+    ),
+    estimatedRevenue: groupMean(
+      listingsFiltered,
+      "estimated_revenue_l365d",
+      "neighbourhood_cleansed",
+      "room_type",
+      "host_is_superhost"
+    ),
+    estimatedRevenueAll: groupMean(
+      listingsFiltered,
+      "estimated_revenue_l365d",
+      "room_type",
+      "host_is_superhost"
     ),
   };
 }
@@ -183,8 +181,8 @@ function setupEventHandlers(svg, agg) {
       const superMap = agg.superHostRoomTypeCounts.get(name) || new Map();
       const nonMap = agg.nonSuperHostRoomTypeCounts.get(name) || new Map();
 
-      drawPie("#pie1-superhost", superMap);
-      drawPie("#pie2-non-superhost", nonMap);
+      drawPie("#pie1-superhost", superMap, roomTypeColor);
+      drawPie("#pie2-non-superhost", nonMap, roomTypeColor);
       createTooltipLegends(tooltipLegends, agg.allRoomTypeCounts.get(name));
 
       tooltip.style("opacity", 1);
@@ -200,15 +198,27 @@ function setupEventHandlers(svg, agg) {
       tooltip.style("opacity", 0);
       d3.select(this).attr("fill", prevColor);
       tooltipLegends.html("");
+    })
+    .on("click", function (event, d) {
+      const name = d.properties.neighbourhood;
+      d3.select("#selected-neighborhood-name").text(name);
+      drawCompanionGraphs(name, agg);
     });
+
+  svg.on("click", function (event) {
+    if (event.target.tagName !== "path") {
+      d3.select("#selected-neighborhood-name").text("All");
+      drawCompanionGraphs("All", agg);
+    }
+  });
 }
 
 function colorByRoomType(name, selectedRoomType, agg) {
   let superCount;
   let nonCount;
   if (selectedRoomType === "All") {
-    superCount = agg.allCounts.get("t")?.get(name) || 0;
-    nonCount = agg.allCounts.get("f")?.get(name) || 0;
+    superCount = agg.allCountsByNeighborhood.get("t")?.get(name) || 0;
+    nonCount = agg.allCountsByNeighborhood.get("f")?.get(name) || 0;
   } else {
     superCount =
       agg.superHostRoomTypeCounts.get(name)?.get(selectedRoomType) || 0;
@@ -227,8 +237,8 @@ function colorByReview(name, selectedRoomType, agg) {
   let superScore;
   let nonScore;
   if (selectedRoomType === "All") {
-    superScore = agg.allReviewScores.get("t")?.get(name) || 0;
-    nonScore = agg.allReviewScores.get("f")?.get(name) || 0;
+    superScore = agg.allReviewScoresByNeighborhood.get("t")?.get(name) || 0;
+    nonScore = agg.allReviewScoresByNeighborhood.get("f")?.get(name) || 0;
   } else {
     superScore =
       agg.reviewScores.get("t")?.get(name)?.get(selectedRoomType) || 0;
@@ -293,22 +303,54 @@ function resetMapColor(svg, agg, checkBox) {
   });
 }
 
+function drawCompanionGraphs(name, agg) {
+  if (name === "All") {
+    drawBarChart({
+      dataMap: agg.estimatedRevenueAll,
+      svgId: "#avg-revenue-bar",
+      title: "Average Revenue by Room Type & Host Type",
+      xLabel: "Room Type",
+      yLabel: "Average Revenue ($)",
+    });
+    drawReviewScoreHistogram({
+      svgId: "#review-score-hist",
+      listings: agg.allData,
+      title: "Review Score Distribution by Host Type",
+    });
+  } else {
+    drawBarChart({
+      dataMap: agg.estimatedRevenue.get(name),
+      svgId: "#avg-revenue-bar",
+      title: "Average Revenue by Room Type & Host Type",
+      xLabel: "Room Type",
+      yLabel: "Average Revenue ($)",
+    });
+    drawReviewScoreHistogram({
+      svgId: "#review-score-hist",
+      listings: agg.allData.filter((d) => d.neighbourhood_cleansed === name),
+      title: "Review Score Distribution by Host Type",
+    });
+  }
+}
+
 Promise.all([
   d3.json("data/sept-1-25/neighbourhoods.geojson"),
   d3.csv("data/sept-1-25/listings-full.csv", (d) => ({
     ...d,
-    price: +d.price.replace(/[$,]/g, ""),
+    estimated_revenue_l365d: +d.estimated_revenue_l365d.replace(/[$,]/g, ""),
   })),
 ]).then(([geo, listings]) => {
   const listingsFiltered = listings.filter(
-    (d) => d.review_scores_rating !== ""
+    (d) =>
+      d.review_scores_rating !== "" &&
+      (d.host_is_superhost === "t" || d.host_is_superhost === "f")
   );
   const reviewCheckBox = d3.select("#review-checkbox").node();
 
   const aggregates = prepareAggregates(listingsFiltered);
-  console.log(aggregates);
   const svg = setupMap(geo);
   resetMapColor(svg, aggregates, reviewCheckBox);
+  drawCompanionGraphs("All", aggregates);
   setupEventHandlers(svg, aggregates);
 
   const neighbourhoodSelector = d3.select("#neighborhood-select");
