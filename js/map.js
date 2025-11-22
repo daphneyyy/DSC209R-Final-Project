@@ -308,9 +308,9 @@ function drawCompanionGraphs(name, agg) {
     drawBarChart({
       dataMap: agg.estimatedRevenueAll,
       svgId: "#avg-revenue-bar",
-      title: "Average Revenue by Room Type & Host Type",
+      title: "Average Est. Revenue by Room Type & Host Type",
       xLabel: "Room Type",
-      yLabel: "Average Revenue ($)",
+      yLabel: "Average Est. Revenue ($)",
     });
     drawReviewScoreHistogram({
       svgId: "#review-score-hist",
@@ -321,9 +321,9 @@ function drawCompanionGraphs(name, agg) {
     drawBarChart({
       dataMap: agg.estimatedRevenue.get(name),
       svgId: "#avg-revenue-bar",
-      title: "Average Revenue by Room Type & Host Type",
+      title: "Average Est. Revenue by Room Type & Host Type",
       xLabel: "Room Type",
-      yLabel: "Average Revenue ($)",
+      yLabel: "Average Est. Revenue ($)",
     });
     drawReviewScoreHistogram({
       svgId: "#review-score-hist",
