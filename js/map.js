@@ -176,6 +176,7 @@ function setupEventHandlers(svg, agg) {
   svg
     .selectAll("path")
     .on("mouseenter", function (event, d) {
+      d3.select(this).style("cursor", "pointer");
       const name = d.properties.neighbourhood;
       neighbourhoodName.text(name);
 

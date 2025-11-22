@@ -58,3 +58,11 @@ header {
   border: 1px solid #ccc;
   display: inline-block;
 }
+
+select {
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  cursor: pointer;
+}
