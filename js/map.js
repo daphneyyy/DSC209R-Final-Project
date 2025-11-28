@@ -348,7 +348,7 @@ function drawCompanionGraphs(name, agg) {
       xLabel: "Room Type",
       yLabel: "Total Listings",
       unit: "",
-      extraText: "Total listings",
+      extraText: "Avg listings",
       // categories: selectedRoomType // TODO: fix this
     });
     drawReviewScoreHistogram({
@@ -381,7 +381,7 @@ function drawCompanionGraphs(name, agg) {
       xLabel: "Room Type",
       yLabel: "Total Listings",
       unit: "",
-      extraText: "Total listings",
+      extraText: "Avg listings",
       // categories: selectedRoomType // TODO: fix this
     });
     drawReviewScoreHistogram({
