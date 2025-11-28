@@ -1,6 +1,6 @@
 // import mapboxgl from "https://cdn.jsdelivr.net/npm/mapbox-gl@2.15.0/+esm";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
-import { drawPie, drawBarChart, drawReviewScoreHistogram } from "./draw.js";
+import { drawDoublePies, drawBarChart, drawReviewScoreHistogram } from "./draw.js";
 
 // console.log("Mapbox GL JS Loaded:", mapboxgl);
 
@@ -26,6 +26,7 @@ const colorLessThan = root.getPropertyValue("--color-less-than").trim();
 const colorEqual = root.getPropertyValue("--color-equal").trim();
 
 let roomTypeColor;
+let selectedRoomType = "All";
 
 function getAvgEstimatedRevenueByNeighbourhood(listings) {
   return d3.rollup(
@@ -111,6 +112,14 @@ function prepareAggregates(listingsFiltered) {
       "neighbourhood_cleansed",
       "room_type"
     ),
+    superHostRoomTypeCountsAll: groupCount(
+      superHostData,
+      "room_type"
+    ),
+    nonSuperHostRoomTypeCountsAll: groupCount(
+      nonSuperHostData,
+      "room_type"
+    ),
     allRoomTypeCounts: groupCount(
       listingsFiltered,
       "neighbourhood_cleansed",
@@ -142,13 +151,24 @@ function prepareAggregates(listingsFiltered) {
       "room_type",
       "host_is_superhost"
     ),
+    totalListingsAll: groupCount(
+      listingsFiltered,
+      "room_type",
+      "host_is_superhost"
+    ),
+    totalListings: groupCount(
+      listingsFiltered,
+      "neighbourhood_cleansed",
+      "room_type",
+      "host_is_superhost"
+    ),
   };
 }
 
 function setupMap(geo) {
   const svg = d3.select("svg");
   const width = 800,
-    height = 600;
+    height = 550;
   const projection = d3.geoMercator().fitSize([width, height], geo);
   const path = d3.geoPath().projection(projection);
 
@@ -178,14 +198,14 @@ function setupEventHandlers(svg, agg) {
       const name = d.properties.neighbourhood;
       neighbourhoodName.text(name);
 
-      const superMap = agg.superHostRoomTypeCounts.get(name) || new Map();
-      const nonMap = agg.nonSuperHostRoomTypeCounts.get(name) || new Map();
+      // const superMap = agg.superHostRoomTypeCounts.get(name) || new Map();
+      // const nonMap = agg.nonSuperHostRoomTypeCounts.get(name) || new Map();
 
-      drawPie("#pie1-superhost", superMap, roomTypeColor);
-      drawPie("#pie2-non-superhost", nonMap, roomTypeColor);
-      createTooltipLegends(tooltipLegends, agg.allRoomTypeCounts.get(name));
+      // drawPie("#pie1-superhost", superMap, roomTypeColor);
+      // drawPie("#pie2-non-superhost", nonMap, roomTypeColor);
+      // createTooltipLegends(tooltipLegends, agg.allRoomTypeCounts.get(name));
 
-      tooltip.style("opacity", 1);
+      // tooltip.style("opacity", 1);
       prevColor = d3.select(this).attr("fill");
       d3.select(this).attr("fill", "#ccc");
     })
@@ -213,7 +233,7 @@ function setupEventHandlers(svg, agg) {
   });
 }
 
-function colorByRoomType(name, selectedRoomType, agg) {
+function colorByRoomType(name, agg) {
   let superCount;
   let nonCount;
   if (selectedRoomType === "All") {
@@ -233,7 +253,7 @@ function colorByRoomType(name, selectedRoomType, agg) {
   return colorEqual;
 }
 
-function colorByReview(name, selectedRoomType, agg) {
+function colorByReview(name, agg) {
   let superScore;
   let nonScore;
   if (selectedRoomType === "All") {
@@ -252,42 +272,46 @@ function colorByReview(name, selectedRoomType, agg) {
 }
 
 function updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg, agg) {
-  roomTypeSelector.on("change", function () {
-    const selectedRoomType = this.value;
-    if (selectedRoomType === "all") {
+  roomTypeSelector.on("click", function (event) {
+    const clicked = event.target;
+
+    roomTypeSelector.selectAll("button").classed("active", false);
+    d3.select(clicked).classed("active", true);
+
+    selectedRoomType = clicked.dataset.value;
+    console.log(selectedRoomType);
+    if (selectedRoomType === "All") {
       resetMapColor(svg, agg, reviewCheckBox);
+      drawCompanionGraphs("All", agg);
+      return;
     } else {
-      svg.selectAll("path").attr("fill", (d) => {
-        const name = d.properties.neighbourhood;
-        if (reviewCheckBox.checked) {
-          d3.selectAll(".legend-annotation").text(" (by avg review scores)");
-          return colorByReview(name, selectedRoomType, agg);
-        } else {
-          d3.selectAll(".legend-annotation").text(" (by room type counts)");
-          return colorByRoomType(name, selectedRoomType, agg);
-        }
-      });
+      drawCompanionGraphs("All", agg);
     }
+    svg.selectAll("path").attr("fill", (d) => {
+      const name = d.properties.neighbourhood;
+      if (reviewCheckBox.checked) {
+        return colorByReview(name, agg);
+      } else {
+        return colorByRoomType(name, agg);
+      }
+    });
   });
 }
 
-function updateBasedOnReview(checkBox, svg, agg, roomTypeSelector) {
+function updateBasedOnReview(checkBox, svg, agg) {
   checkBox.addEventListener("change", function () {
-    const selectedRoomType = roomTypeSelector.node().value;
-    console.log("selectedRoomType:", selectedRoomType);
-    if (selectedRoomType === "all") {
+    if (selectedRoomType === "All") {
       resetMapColor(svg, agg, checkBox);
-    } else {
-      svg.selectAll("path").attr("fill", (d) => {
-        const name = d.properties.neighbourhood;
-        if (checkBox.checked) {
-          d3.selectAll(".legend-annotation").text(" (by avg review scores)");
-          return colorByReview(name, selectedRoomType, agg);
-        }
-        d3.selectAll(".legend-annotation").text(" (by room type counts)");
-        return colorByRoomType(name, selectedRoomType, agg);
-      });
+      return;
     }
+
+    svg.selectAll("path").attr("fill", (d) => {
+      const name = d.properties.neighbourhood;
+      if (checkBox.checked) {
+        return colorByReview(name, agg);
+      }
+      return colorByRoomType(name, agg);
+    });
   });
 }
 
@@ -295,11 +319,9 @@ function resetMapColor(svg, agg, checkBox) {
   svg.selectAll("path").attr("fill", (d) => {
     const name = d.properties.neighbourhood;
     if (checkBox.checked) {
-      d3.selectAll(".legend-annotation").text(" (by avg review scores)");
-      return colorByReview(name, "All", agg);
+      return colorByReview(name, agg);
     }
-    d3.selectAll(".legend-annotation").text(" (by total listings)");
-    return colorByRoomType(name, "All", agg);
+    return colorByRoomType(name, agg);
   });
 }
 
@@ -311,12 +333,32 @@ function drawCompanionGraphs(name, agg) {
       title: "Average Est. Revenue by Room Type & Host Type",
       xLabel: "Room Type",
       yLabel: "Average Est. Revenue ($)",
+      unit: "$",
+      extraText: "Avg Est. revenue",
+      // categories: selectedRoomType // TODO: fix this
+    });
+    drawBarChart({
+      dataMap: agg.totalListingsAll,
+      svgId: "#total-count-bar",
+      title: "Total Listings by Room Type & Host Type",
+      xLabel: "Room Type",
+      yLabel: "Total Listings",
+      unit: "",
+      extraText: "Total listings",
+      // categories: selectedRoomType // TODO: fix this
     });
     drawReviewScoreHistogram({
       svgId: "#review-score-hist",
       listings: agg.allData,
       title: "Review Score Distribution by Host Type",
     });
+    // drawDoublePies({
+    //   svgId1: "#pie1-superhost",
+    //   countsMap1: agg.superHostRoomTypeCountsAll,
+    //   svgId2: "#pie2-non-superhost",
+    //   countsMap2: agg.nonSuperHostRoomTypeCountsAll,
+    //   roomTypeColor: roomTypeColor,
+    // });
   } else {
     drawBarChart({
       dataMap: agg.estimatedRevenue.get(name),
@@ -324,12 +366,34 @@ function drawCompanionGraphs(name, agg) {
       title: "Average Est. Revenue by Room Type & Host Type",
       xLabel: "Room Type",
       yLabel: "Average Est. Revenue ($)",
+      unit: "$",
+      extraText: "Avg Est. revenue",
+      // categories: selectedRoomType // TODO: fix this
+    });
+    drawBarChart({
+      dataMap: agg.totalListings.get(name),
+      svgId: "#total-count-bar",
+      title: "Total Listings by Room Type & Host Type",
+      xLabel: "Room Type",
+      yLabel: "Total Listings",
+      unit: "",
+      extraText: "Total listings",
+      // categories: selectedRoomType // TODO: fix this
     });
     drawReviewScoreHistogram({
       svgId: "#review-score-hist",
       listings: agg.allData.filter((d) => d.neighbourhood_cleansed === name),
       title: "Review Score Distribution by Host Type",
     });
+    // const superMap = agg.superHostRoomTypeCounts.get(name) || new Map();
+    // const nonMap = agg.nonSuperHostRoomTypeCounts.get(name) || new Map();
+    // drawDoublePies({
+    //   svgId1: "#pie1-superhost",
+    //   countsMap1: superMap,
+    //   svgId2: "#pie2-non-superhost",
+    //   countsMap2: nonMap,
+    //   roomTypeColor: roomTypeColor,
+    // });
   }
 }
 
@@ -345,14 +409,9 @@ Promise.all([
       d.review_scores_rating !== "" &&
       (d.host_is_superhost === "t" || d.host_is_superhost === "f")
   );
-  const reviewCheckBox = d3.select("#review-checkbox").node();
+  const reviewCheckBox = d3.select("#metric-toggle").node();
 
   const aggregates = prepareAggregates(listingsFiltered);
-  const svg = setupMap(geo);
-  resetMapColor(svg, aggregates, reviewCheckBox);
-  drawCompanionGraphs("All", aggregates);
-  setupEventHandlers(svg, aggregates);
-
   const neighbourhoodSelector = d3.select("#neighborhood-select");
   aggregates.countByNeighbourhood.keys().forEach((neighbourhood) => {
     neighbourhoodSelector
@@ -361,11 +420,19 @@ Promise.all([
       .text(neighbourhood);
   });
 
-  const roomTypeSelector = d3.select("#room-type-select");
+  const roomTypeSelector = d3.select("#room-control");
   aggregates.roomTypes.forEach((roomType) => {
-    roomTypeSelector.append("option").attr("value", roomType).text(roomType);
+    roomTypeSelector
+      .append("button")
+      .attr("data-value", roomType)
+      .text(roomType);
   });
 
+  const svg = setupMap(geo);
+  resetMapColor(svg, aggregates, reviewCheckBox);
+  drawCompanionGraphs("All", aggregates);
+  setupEventHandlers(svg, aggregates);
+
   updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg, aggregates);
-  updateBasedOnReview(reviewCheckBox, svg, aggregates, roomTypeSelector);
+  updateBasedOnReview(reviewCheckBox, svg, aggregates);
 });

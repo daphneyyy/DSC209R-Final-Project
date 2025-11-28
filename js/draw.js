@@ -119,24 +119,61 @@ function createTopLegend(svg, width, margin, extraText = "") {
 
 }
 
-export function drawPie(svgId, countsMap, roomTypeColor) {
+export function drawDoublePies({ svgId1, svgId2, countsMap1, countsMap2, roomTypeColor }) {
+
+  // const svg1 = d3.select(svgId1);
+  // const svg2 = d3.select(svgId2);
+
+  // const noData =
+  //   !countsMap1 || countsMap1.size === 0 ||
+  //   !countsMap2 || countsMap2.size === 0;
+
+  // if (noData) {
+  //   svg1.selectAll("*").remove();
+  //   svg2.selectAll("*").remove();
+  //   drawEmptyPie(svgId1);
+
+  //   return; // <-- Do NOT draw pies
+  // }
+
+  // Otherwise draw both pies
+  drawPie({ svgId: svgId1, countsMap: countsMap1, roomTypeColor });
+  drawPie({ svgId: svgId2, countsMap: countsMap2, roomTypeColor });
+}
+
+export function drawPie({ svgId, countsMap, roomTypeColor }) {
   const svg = d3.select(svgId);
   svg.selectAll("*").remove();
 
-  const width = +svg.attr("width"),
-    height = +svg.attr("height"),
-    radius = Math.min(width, height) / 2;
+  const width = +svg.attr("width");
+  const height = +svg.attr("height");
 
-  const g = svg
-    .append("g")
-    .attr("transform", `translate(${width / 2}, ${height / 2})`);
+  const titleOffset = 18;
+  const radius = Math.min(width, height - titleOffset) * 0.4;
+
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", 18)
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .style("font-weight", "600")
+    .text(svg.attr("data-title"));
+
+  const g = svg.append("g")
+    .attr("transform", `translate(${width / 2}, ${(height + titleOffset) / 2})`);
 
   const entries = Array.from(countsMap.keys());
   const values = Array.from(countsMap.values());
+  const total = d3.sum(values);
+
   const pie = d3.pie();
   const arcs = pie(values);
 
   const arc = d3.arc().innerRadius(0).outerRadius(radius);
+
+  const labelArc = d3.arc()
+    .innerRadius(radius * 0.55)
+    .outerRadius(radius * 0.55);
 
   g.selectAll("path")
     .data(arcs)
@@ -145,7 +182,23 @@ export function drawPie(svgId, countsMap, roomTypeColor) {
     .attr("fill", (d, i) => roomTypeColor(entries[i]))
     .attr("stroke", "#fff")
     .attr("stroke-width", 1);
+
+  g.selectAll("text")
+    .data(arcs)
+    .join("text")
+    .text((d) => {
+      const pct = (d.data / total) * 100;
+      return pct >= 5 ? `${pct.toFixed(1)}%` : "";
+    })
+    .attr("transform", (d) => `translate(${labelArc.centroid(d)})`)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "middle")
+    .style("font-size", "10px")
+    .style("fill", "#333")
+    .style("pointer-events", "none");
 }
+
+
 
 export function drawBarChart({
   dataMap,
@@ -154,7 +207,10 @@ export function drawBarChart({
   height = 350,
   title = "",
   xLabel = "",
-  yLabel = ""
+  yLabel = "",
+  unit = "",
+  extraText = "",
+  categories = "All"
 }) {
   const svg = d3.select(svgId).attr("width", width).attr("height", height);
   svg.selectAll("*").remove();
@@ -165,9 +221,11 @@ export function drawBarChart({
   }
 
   const margin = { top: 90, right: 80, bottom: 50, left: 80 };
-
-  const categories = Array.from(dataMap.keys());
+  categories = (categories === "All")
+    ? Array.from(dataMap.keys())
+    : [categories];
   const subcategories = ["t", "f"];
+  // console.log("categories:", categories);
   const maxValue = d3.max(categories, (cat) =>
     d3.max(subcategories, (sub) => dataMap.get(cat).get(sub) || 0)
   );
@@ -271,7 +329,7 @@ export function drawBarChart({
       .attr("dominant-baseline", "middle")
       .style("font-size", "12px")
       .style("fill", d3.color(colors[0]).darker(1.4))
-      .text(`$${Number(avgRevenueSuper.toFixed(2)).toLocaleString()}`);
+      .text(`${unit}${Number(avgRevenueSuper.toFixed(2)).toLocaleString()}`);
   }
   const avgRevenueNonSuper = d3.mean(
     Array.from(dataMap.values(), (m) => m.get("f") || 0)
@@ -294,9 +352,9 @@ export function drawBarChart({
       .attr("dominant-baseline", "middle")
       .style("font-size", "12px")
       .style("fill", d3.color(colors[1]).darker(1.4))
-      .text(`$${Number(avgRevenueNonSuper.toFixed(2)).toLocaleString()}`);
+      .text(`${unit}${Number(avgRevenueNonSuper.toFixed(2)).toLocaleString()}`);
   }
-  createTopLegend(svg, width, margin, "Avg Est. revenue");
+  createTopLegend(svg, width, margin, extraText);
 }
 
 export function drawReviewScoreHistogram({

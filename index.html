@@ -6,7 +6,8 @@
         <link rel="stylesheet" href="css/map.css" />
         <link rel="stylesheet" href="css/style.css" />
         <title>Airbnb Price Explore - San Francisco Region</title>
-        <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
+            rel="stylesheet" />
         <script src="js/map.js" type="module"></script>
     </head>
     <body>
@@ -15,43 +16,54 @@
             <h1>Do Superhosts Really Earn More in San Francisco?</h1>
         </header>
 
-        <section id="dropdowns">
-            <div class="dropdown">
-                <label for="room-type-select">Select a room type to see comparison:</label>
-                <select id="room-type-select"><option value="all">All Room Types</option>
-                </select>
-            </div>
-        </section>
-
-        <section id="checkbox">
-            <input type="checkbox" id="review-checkbox" unchecked>
-            <label for="review-checkbox">based on reviews</label>
-        </section>
-
         <section id="graphs">
             <div id="map-and-graph-container">
                 <div id="map">
+                    <section id="filters">
+                        <div class="filter-block">
+                            <span class="filter-title">Room Type</span>
+                            <div class="segmented-control" id="room-control">
+                                <button class="active" data-value="All">All</button>
+                            </div>
+                        </div>
+                        <div class="filter-block">
+                            <div class="toggle-wrapper">
+                                <span>Number of Listings</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="metric-toggle">
+                                    <span class="slider"></span>
+                                </label>
+                                <span>Review Scores</span>
+                            </div>
+                        </div>
+                    </section>
                     <svg></svg>
                     <div class="legends">
                         <span class="legend-label">Legend:</span>
-                        <div style="--color: var(--color-greater-than)" class="legend">Superhosts Lead
-                            <span class="legend-annotation"></span></div>
-                        <div style="--color: var(--color-equal)" class="legend">Balanced
-                            <span class="legend-annotation"></span></div>
-                        <div style="--color: var(--color-less-than)" class="legend">Non-Superhosts Lead
-                            <span class="legend-annotation"></span></div>
+                        <div style="--color: var(--color-greater-than)" class="legend">Superhosts Lead</div>
+                        <div style="--color: var(--color-equal)" class="legend">Balanced</div>
+                        <div style="--color: var(--color-less-than)" class="legend">Non-Superhosts Lead</div>
                     </div>
                 </div>
-                <div id="bar-chart-container">
+                <div class="charts-container">
                     <div class="bar-chart-title">Neighborhood: <span
                             id="selected-neighborhood-name"
                             class="neighborhood-name">All</span></div>
                     <svg id="avg-revenue-bar" class="bar"></svg>
+                    <svg id="total-count-bar" class="bar"></svg>
                     <svg id="review-score-hist" class="hist"></svg>
+                    <!-- <div class="pie-chart-container">
+                        <span class="pie-chart-title">Number of Listings by Host Type</span>
+                        <div class="pies">
+                            <svg class="pie" id="pie1-superhost" width="200" height="200" data-title="Superhosts"></svg>
+                            <svg class="pie" id="pie2-non-superhost" width="200" height="200" data-title="Non-Superhosts"></svg>
+                        </div>
+                    </div> -->
                 </div>
             </div>
+            
 
-            <div class="tooltip">
+            <!-- <div class="tooltip">
                 <div id="neighborhood-name" class="neighborhood-name"></div>
                 <div class="pies">
                     <div class="pie-group">
@@ -67,7 +79,7 @@
                     </div>
                 </div>
                 <div class="tooltip-legends"></div>
-            </div>
+            </div> -->
         </section>
 
     </body>
