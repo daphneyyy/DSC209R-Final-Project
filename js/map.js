@@ -279,14 +279,18 @@ function updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg, agg) {
     d3.select(clicked).classed("active", true);
 
     selectedRoomType = clicked.dataset.value;
-    console.log(selectedRoomType);
+    // console.log(selectedRoomType);
     if (selectedRoomType === "All") {
       resetMapColor(svg, agg, reviewCheckBox);
-      drawCompanionGraphs("All", agg);
       return;
-    } else {
-      drawCompanionGraphs("All", agg);
     }
+    // if (selectedRoomType === "All") {
+    //   resetMapColor(svg, agg, reviewCheckBox);
+    //   drawCompanionGraphs("All", agg);
+    //   return;
+    // } else {
+    //   drawCompanionGraphs("All", agg);
+    // }
     svg.selectAll("path").attr("fill", (d) => {
       const name = d.properties.neighbourhood;
       if (reviewCheckBox.checked) {
