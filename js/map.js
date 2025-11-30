@@ -229,39 +229,21 @@ function setupEventHandlers(svg) {
         superAvgReview,
         nonAvgReview;
       if (selectedRoomType === "All") {
-        superListingCount =
-          cachedAggregates.allCountsByNeighborhood.get("t")?.get(name) || 0;
-        nonListingCount =
-          cachedAggregates.allCountsByNeighborhood.get("f")?.get(name) || 0;
+        superListingCount = cachedAggregates.allCountsByNeighborhood.get("t")?.get(name) || 0;
+        nonListingCount = cachedAggregates.allCountsByNeighborhood.get("f")?.get(name) || 0;
         superIdCount = cachedAggregates.hostIdCounts.get(name)?.get("t") || 0;
         nonIdCount = cachedAggregates.hostIdCounts.get(name)?.get("f") || 0;
-        superAvgReview =
-          cachedAggregates.allReviewScoresByNeighborhood.get("t")?.get(name) ||
-          0;
-        nonAvgReview =
-          cachedAggregates.allReviewScoresByNeighborhood.get("f")?.get(name) ||
-          0;
+        superAvgReview = cachedAggregates.allReviewScoresByNeighborhood.get("t")?.get(name) || 0;
+        nonAvgReview = cachedAggregates.allReviewScoresByNeighborhood.get("f")?.get(name) || 0;
       } else {
-        const listingsData = cachedAggregates.totalListings
-          .get(name)
-          ?.get(selectedRoomType);
+        const listingsData = cachedAggregates.totalListings.get(name)?.get(selectedRoomType);
         superListingCount = listingsData?.get("t") || 0;
         nonListingCount = listingsData?.get("f") || 0;
-        const idCountsData = cachedAggregates.hostIdCountsRoomType
-          .get(name)
-          ?.get(selectedRoomType);
+        const idCountsData = cachedAggregates.hostIdCountsRoomType.get(name)?.get(selectedRoomType);
         superIdCount = idCountsData?.get("t") || 0;
         nonIdCount = idCountsData?.get("f") || 0;
-        superAvgReview =
-          cachedAggregates.reviewScores
-            .get("t")
-            ?.get(name)
-            ?.get(selectedRoomType) || 0;
-        nonAvgReview =
-          cachedAggregates.reviewScores
-            .get("f")
-            ?.get(name)
-            ?.get(selectedRoomType) || 0;
+        superAvgReview = cachedAggregates.reviewScores.get("t")?.get(name)?.get(selectedRoomType) || 0;
+        nonAvgReview = cachedAggregates.reviewScores.get("f")?.get(name)?.get(selectedRoomType) || 0;
       }
       createTooltip(
         name,

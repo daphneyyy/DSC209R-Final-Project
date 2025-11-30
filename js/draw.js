@@ -30,6 +30,7 @@ function drawEmptyChart(svg, width, height, title, xLabel, yLabel) {
 
   svg
     .append("text")
+    .classed("no-data-text", true)
     .attr("x", width / 2)
     .attr("y", height / 2)
     .attr("text-anchor", "middle")
@@ -119,6 +120,20 @@ function createTopLegend(svg, width, margin, extraText = "") {
 
 }
 
+function removeExistingChartElements(svg) {
+  svg.selectAll(".bar-group").remove();
+  svg.selectAll(".avg-line").remove();
+  svg.selectAll(".legend").remove();
+  svg.selectAll(".chart-title").remove();
+  svg.selectAll(".dotted-line").remove();
+  svg.selectAll(".dotted-line-text").remove();
+  svg.selectAll(".no-data-text").remove();
+}
+
+function removeAllChartElements(svg) {
+  svg.selectAll("*").remove();
+}
+
 export function drawDoublePies({ svgId1, svgId2, countsMap1, countsMap2, roomTypeColor }) {
 
   // const svg1 = d3.select(svgId1);
@@ -143,7 +158,7 @@ export function drawDoublePies({ svgId1, svgId2, countsMap1, countsMap2, roomTyp
 
 export function drawPie({ svgId, countsMap, roomTypeColor }) {
   const svg = d3.select(svgId);
-  svg.selectAll("*").remove();
+  removeExistingChartElements(svg);
 
   const width = +svg.attr("width");
   const height = +svg.attr("height");
@@ -151,7 +166,8 @@ export function drawPie({ svgId, countsMap, roomTypeColor }) {
   const titleOffset = 18;
   const radius = Math.min(width, height - titleOffset) * 0.4;
 
-  svg.append("text")
+  svg
+    .append("text")
     .attr("x", width / 2)
     .attr("y", 18)
     .attr("text-anchor", "middle")
@@ -159,8 +175,12 @@ export function drawPie({ svgId, countsMap, roomTypeColor }) {
     .style("font-weight", "600")
     .text(svg.attr("data-title"));
 
-  const g = svg.append("g")
-    .attr("transform", `translate(${width / 2}, ${(height + titleOffset) / 2})`);
+  const g = svg
+    .append("g")
+    .attr(
+      "transform",
+      `translate(${width / 2}, ${(height + titleOffset) / 2})`
+    );
 
   const entries = Array.from(countsMap.keys());
   const values = Array.from(countsMap.values());
@@ -213,9 +233,10 @@ export function drawBarChart({
   categories = "All"
 }) {
   const svg = d3.select(svgId).attr("width", width).attr("height", height);
-  svg.selectAll("*").remove();
+  removeExistingChartElements(svg);
 
   if (!dataMap || dataMap.size === 0) {
+    removeAllChartElements(svg);
     drawEmptyChart(svg, width, height, title, xLabel, yLabel);
     return;
   }
@@ -225,7 +246,6 @@ export function drawBarChart({
     ? Array.from(dataMap.keys())
     : [categories];
   const subcategories = ["t", "f"];
-  // console.log("categories:", categories);
   const maxValue = d3.max(categories, (cat) =>
     d3.max(subcategories, (sub) => dataMap.get(cat).get(sub) || 0)
   );
@@ -250,15 +270,27 @@ export function drawBarChart({
 
   const color = d3.scaleOrdinal().domain(subcategories).range(colors);
 
-  svg
-    .append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x0));
+  let xAxisG = svg.select(".x-axis");
+  let yAxisG = svg.select(".y-axis");
 
-  svg
-    .append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y));
+  if (xAxisG.empty()) {
+    xAxisG = svg
+      .append("g")
+      .attr("class", "x-axis")
+      .attr("transform", `translate(0,${height - margin.bottom})`);
+  }
+  if (yAxisG.empty()) {
+    yAxisG = svg
+      .append("g")
+      .attr("class", "y-axis")
+      .attr("transform", `translate(${margin.left},0)`);
+  }
+  
+  const xAxis = d3.axisBottom(x0);
+  const yAxis = d3.axisLeft(y);
+
+  xAxisG.transition().duration(1000).ease(d3.easeCubic).call(xAxis);
+  yAxisG.transition().duration(1000).ease(d3.easeCubic).call(yAxis);
 
   const groups = svg
     .selectAll("g.group")
@@ -278,10 +310,16 @@ export function drawBarChart({
     )
     .join("rect")
     .attr("x", (d) => x1(d.sub))
-    .attr("y", (d) => y(d.value))
     .attr("width", x1.bandwidth())
-    .attr("height", (d) => y(0) - y(d.value))
-    .attr("fill", (d) => color(d.sub));
+    .attr("fill", (d) => color(d.sub))
+    .attr("y", y(0))
+    .attr("height", 0)
+    .transition()
+    .duration(800)
+    .ease(d3.easeCubicOut)
+    .attr("y", (d) => y(d.value))
+    .attr("height", (d) => y(0) - y(d.value));
+
 
   svg
     .append("text")
@@ -308,51 +346,55 @@ export function drawBarChart({
     .style("font-size", "14px")
     .text(yLabel);
 
-  const avgRevenueSuper = d3.mean(
+  const avgSuper = d3.mean(
     Array.from(dataMap.values(), (m) => m.get("t") || 0)
   );
-  if (avgRevenueSuper) {
+  if (avgSuper) {
     svg
       .append("line")
+      .classed("dotted-line", true)
       .attr("x1", margin.left)
       .attr("x2", width - margin.right)
-      .attr("y1", y(avgRevenueSuper))
-      .attr("y2", y(avgRevenueSuper))
+      .attr("y1", y(avgSuper))
+      .attr("y2", y(avgSuper))
       .attr("stroke", d3.color(colors[0]).darker(1.2))
       .attr("stroke-width", 1.2)
       .attr("stroke-dasharray", "4 4")
       .attr("opacity", 1);
     svg
       .append("text")
+      .classed("dotted-line-text", true)
       .attr("x", width - margin.right + 6)
-      .attr("y", y(avgRevenueSuper))
+      .attr("y", y(avgSuper))
       .attr("dominant-baseline", "middle")
       .style("font-size", "12px")
       .style("fill", d3.color(colors[0]).darker(1.4))
-      .text(`${unit}${Number(avgRevenueSuper.toFixed(2)).toLocaleString()}`);
+      .text(`${unit}${Number(avgSuper.toFixed(2)).toLocaleString()}`);
   }
-  const avgRevenueNonSuper = d3.mean(
+  const avgNonSuper = d3.mean(
     Array.from(dataMap.values(), (m) => m.get("f") || 0)
   );
-  if (avgRevenueNonSuper) {
+  if (avgNonSuper) {
     svg
       .append("line")
+      .classed("dotted-line", true)
       .attr("x1", margin.left)
       .attr("x2", width - margin.right)
-      .attr("y1", y(avgRevenueNonSuper))
-      .attr("y2", y(avgRevenueNonSuper))
+      .attr("y1", y(avgNonSuper))
+      .attr("y2", y(avgNonSuper))
       .attr("stroke", d3.color(colors[1]).darker(1.2))
       .attr("stroke-width", 1.2)
       .attr("stroke-dasharray", "4 4")
       .attr("opacity", 1);
     svg
       .append("text")
+      .classed("dotted-line-text", true)
       .attr("x", width - margin.right + 6)
-      .attr("y", y(avgRevenueNonSuper))
+      .attr("y", y(avgNonSuper))
       .attr("dominant-baseline", "middle")
       .style("font-size", "12px")
       .style("fill", d3.color(colors[1]).darker(1.4))
-      .text(`${unit}${Number(avgRevenueNonSuper.toFixed(2)).toLocaleString()}`);
+      .text(`${unit}${Number(avgNonSuper.toFixed(2)).toLocaleString()}`);
   }
   createTopLegend(svg, width, margin, extraText);
 }
