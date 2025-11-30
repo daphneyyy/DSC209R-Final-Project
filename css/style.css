@@ -10,7 +10,7 @@
 
 
 body {
-  font: 100%/1.5 system-ui, sans-serif;
+  font-family: sans-serif;
   display: flex;
   flex-flow: column;
   max-width: 80em;
@@ -62,16 +62,6 @@ header {
   flex-wrap: wrap;
 }
 
-select {
-  cursor: pointer;
-}
-
-input[type="checkbox"] {
-  cursor: pointer;
-}
-
-
-/* Layout */
 #filters {
   display: flex;
   flex-direction: column;
@@ -85,7 +75,6 @@ input[type="checkbox"] {
   margin-right: 1px;
 }
 
-/* Toggle Switch */
 .toggle-wrapper {
   display: flex;
   align-items: center;
@@ -135,7 +124,6 @@ input:checked + .slider:before {
   transform: translateX(22px);
 }
 
-/* Segmented Control */
 .segmented-control {
   display: inline-flex;
   border: 1px solid #ccc;
@@ -153,4 +141,27 @@ input:checked + .slider:before {
 .segmented-control button.active {
   background: #007aff;
   color: white;
+}
+
+.bar-chart-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;                 /* spacing between label + value */
+  padding: 6px 10px;
+  font-size: 18px;
+  /* background: #e6e6e6; */
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.bar-chart-title .label {
+  color: #555;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.neighborhood-name {
+  color: #111;
+  font-weight: 700;
 }

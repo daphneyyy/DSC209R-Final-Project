@@ -15,11 +15,13 @@
         <header>
             <h1>Do Superhosts Really Earn More in San Francisco?</h1>
         </header>
+        <section id="description">
+        </section>
 
         <section id="graphs">
             <div id="map-and-graph-container">
                 <div id="map">
-                    <section id="filters">
+                    <div id="filters">
                         <div class="filter-block">
                             <span class="filter-title">Room Type</span>
                             <div class="segmented-control" id="room-control">
@@ -33,22 +35,23 @@
                                     <input type="checkbox" id="metric-toggle">
                                     <span class="slider"></span>
                                 </label>
-                                <span>Review Scores</span>
+                                <span>Average Review Scores</span>
                             </div>
                         </div>
-                    </section>
+                    </div>
                     <svg></svg>
                     <div class="legends">
-                        <span class="legend-label">Legend:</span>
+                        <span class="legends-label">Legend:</span>
                         <div style="--color: var(--color-greater-than)" class="legend">Superhosts Lead</div>
                         <div style="--color: var(--color-equal)" class="legend">Balanced</div>
                         <div style="--color: var(--color-less-than)" class="legend">Non-Superhosts Lead</div>
                     </div>
                 </div>
                 <div class="charts-container">
-                    <div class="bar-chart-title">Neighborhood: <span
-                            id="selected-neighborhood-name"
-                            class="neighborhood-name">All</span></div>
+                    <div class="bar-chart-title">
+                        <span class="label">Neighborhood:</span>
+                        <span id="selected-neighborhood-name" class="neighborhood-name">All</span>
+                    </div>
                     <svg id="avg-revenue-bar" class="bar"></svg>
                     <svg id="total-count-bar" class="bar"></svg>
                     <svg id="review-score-hist" class="hist"></svg>
@@ -61,25 +64,41 @@
                     </div> -->
                 </div>
             </div>
-            
 
-            <!-- <div class="tooltip">
-                <div id="neighborhood-name" class="neighborhood-name"></div>
-                <div class="pies">
-                    <div class="pie-group">
-                        <div class="pie-title">Superhosts</div>
-                        <svg class="pie" id="pie1-superhost" width="100"
-                            height="100"></svg>
-                    </div>
+            <div class="tooltip">
+                <div id="hover-neighborhood-name" class="tooltip-title"></div>
 
-                    <div class="pie-group">
-                        <div class="pie-title">Non-Superhosts</div>
-                        <svg class="pie" id="pie2-non-superhost" width="100"
-                            height="100"></svg>
-                    </div>
-                </div>
-                <div class="tooltip-legends"></div>
-            </div> -->
+                <table class="tooltip-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Super-host</th>
+                            <th>Non-superhost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="metric-row">
+                            <td># of Distinct Hosts</td>
+                            <td id="super-id-count"></td>
+                            <td id="non-id-count"></td>
+                        </tr>
+
+                        <tr class="metric-row">
+                            <td># of Listings</td>
+                            <td id="super-listing-count"></td>
+                            <td id="non-listing-count"></td>
+                        </tr>
+
+                        <tr class="metric-row">
+                            <td>Avg. Review Score</td>
+                            <td id="super-review-score"></td>
+                            <td id="non-review-score"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+
         </section>
 
     </body>

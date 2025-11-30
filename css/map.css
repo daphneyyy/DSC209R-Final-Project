@@ -16,6 +16,10 @@ html {
   width: 100%;
 }
 
+#graphs {
+  margin-top: 20px;
+}
+
 #map-and-graph-container {
   display: flex;
   flex-direction: row;
@@ -30,71 +34,51 @@ html {
   margin: 0;
 }
 
-#bar-chart-container {
-  display: flex;
-  flex-direction: column;
-}
-
-
 .tooltip {
-  padding: 8px 12px;
+  position: absolute;
   background: white;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  pointer-events: none;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   opacity: 0;
-  transition: opacity 0.15s ease-out;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  font-size: 14px;
+  border-radius: 12px;
 }
 
-.neighborhood-name {
-  font-weight: bold;
-  margin-bottom: 6px;
+.tooltip-title {
+  font-size: 16px;
+  font-weight: 800;
   text-align: center;
+  margin-bottom: 2px;
 }
 
-/* .pie-chart-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 1rem;
-} */
-
-/* .pie-chart-title {
-  font: 15px;
-} */
-
-/* .pies {
-  display: flex;
+.tooltip-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
   justify-content: center;
-  align-items: center;
-  margin-bottom: 0.5rem;
-} */
-
-/* .pie-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-} */
-
-/* .pie {
-  display: block;
-} */
-
-.tooltip-legends {
-  margin-top: 8px;
 }
 
-.tooltip-legends .legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 4px;
+.tooltip-table th {
+  font-size: 13px;
+  font-weight: 700;
+  color: #444;
+  border-bottom: 1px solid #eee;
 }
 
-.legend-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  margin-right: 6px;
+.tooltip-table th,
+.tooltip-table td {
+  padding: 2px 5px;
+}
+
+.metric-row td:first-child {
+  text-align: left;
+  color: #777;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.metric-row td {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
 }
