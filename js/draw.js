@@ -426,9 +426,18 @@ export function drawReviewScoreHistogram({
     return;
   }
 
+  const minScore = Math.min(
+    d3.min(superScores),
+    d3.min(nonSuperScores)
+  );
+  const maxScore = Math.max(
+    d3.max(superScores),
+    d3.max(nonSuperScores)
+  );
+
   const x = d3
     .scaleLinear()
-    .domain([3.0, 5.0])
+    .domain([minScore, maxScore])
     .range([margin.left, width - margin.right]);
 
   const histogram = d3.histogram().domain(x.domain()).thresholds(x.ticks(15));
@@ -510,11 +519,15 @@ export function drawReviewScoreHistogram({
     .text(yLabel);
 
   const avgReviewSuper = d3.mean(superScores);
+  const avgReviewNonSuper = d3.mean(nonSuperScores);
+  let xSuper = x(avgReviewSuper);
+  let xNonSuper = x(avgReviewNonSuper);
+
   if (avgReviewSuper) {
     svg
       .append("line")
-      .attr("x1", x(avgReviewSuper))
-      .attr("x2", x(avgReviewSuper))
+      .attr("x1", xSuper)
+      .attr("x2", xSuper)
       .attr("y1", margin.top)
       .attr("y2", height - margin.bottom)
       .attr("stroke", d3.color(colors[0]).darker(1.2))
@@ -523,19 +536,18 @@ export function drawReviewScoreHistogram({
       .attr("opacity", 1);
     svg
       .append("text")
-      .attr("x", x(avgReviewSuper) - 10)
+      .attr("x", xSuper - 10)
       .attr("y", margin.top - 6)
       .attr("dominant-baseline", "middle")
       .style("font-size", "12px")
       .style("fill", d3.color(colors[0]).darker(1.4))
       .text(Number(avgReviewSuper.toFixed(2)));
   }
-  const avgReviewNonSuper = d3.mean(nonSuperScores);
   if (avgReviewNonSuper) {
     svg
       .append("line")
-      .attr("x1", x(avgReviewNonSuper))
-      .attr("x2", x(avgReviewNonSuper))
+      .attr("x1", xNonSuper)
+      .attr("x2", xNonSuper)
       .attr("y1", margin.top)
       .attr("y2", height - margin.bottom)
       .attr("stroke", d3.color(colors[1]).darker(1.2))
@@ -544,7 +556,7 @@ export function drawReviewScoreHistogram({
       .attr("opacity", 1);
     svg
       .append("text")
-      .attr("x", x(avgReviewNonSuper) - 10)
+      .attr("x", xNonSuper - 10)
       .attr("y", margin.top - 6)
       .attr("dominant-baseline", "middle")
       .style("font-size", "12px")

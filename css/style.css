@@ -10,7 +10,7 @@
 
 
 body {
-  font-family: sans-serif;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
   display: flex;
   flex-flow: column;
   max-width: 80em;
@@ -21,11 +21,39 @@ body {
 }
 
 header {
-  display: flex;
-  align-items: center;
-  gap: 1em;
-  padding: 0.75em 0;
-  width: 100%;
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  color: #555;
+  margin: 0.3rem 0 0.8rem;
+}
+
+.subtitle a {
+  color: #0077cc;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.subtitle a:hover {
+  text-decoration: underline;
+}
+
+.note {
+  font-size: 0.95rem;
+  color: #666;
+  font-style: italic;
 }
 
 .legends {
@@ -147,10 +175,9 @@ input:checked + .slider:before {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 6px;                 /* spacing between label + value */
+  gap: 6px;
   padding: 6px 10px;
   font-size: 18px;
-  /* background: #e6e6e6; */
   border-radius: 6px;
   font-weight: 600;
 }
