@@ -426,14 +426,20 @@ export function drawReviewScoreHistogram({
     return;
   }
 
-  const minScore = Math.min(
-    d3.min(superScores),
-    d3.min(nonSuperScores)
-  );
-  const maxScore = Math.max(
-    d3.max(superScores),
-    d3.max(nonSuperScores)
-  );
+  const validMins = [];
+  const validMaxs = [];
+
+  if (superScores.length > 0) {
+    validMins.push(d3.min(superScores));
+    validMaxs.push(d3.max(superScores));
+  }
+  if (nonSuperScores.length > 0) {
+    validMins.push(d3.min(nonSuperScores));
+    validMaxs.push(d3.max(nonSuperScores));
+  }
+
+  const minScore = d3.min(validMins);
+  const maxScore = d3.max(validMaxs);
 
   const x = d3
     .scaleLinear()
