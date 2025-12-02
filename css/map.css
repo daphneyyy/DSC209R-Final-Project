@@ -25,6 +25,7 @@ html {
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
+  gap: 20px;
 }
 
 #map {
@@ -34,14 +35,25 @@ html {
   margin: 0;
 }
 
+#map svg {
+  border-radius: 8px;
+  padding: 10px 5px;
+  box-shadow: 0 4px 12px rgba(12, 12, 12, 0.5);
+}
+
+.reset-graph {
+  cursor: pointer;
+}
+
 .tooltip {
   position: absolute;
   background: white;
   padding: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(12, 12, 12, 0.5);
   opacity: 0;
   border-radius: 12px;
   pointer-events: none;
+  border: 1px solid black;
 }
 
 .tooltip-title {

@@ -38,6 +38,8 @@ header {
   font-size: 1.05rem;
   color: #555;
   margin: 0.3rem 0 0.8rem;
+  max-width: 800px;
+  margin: auto;
 }
 
 .subtitle a {
@@ -191,4 +193,9 @@ input:checked + .slider:before {
 .neighborhood-name {
   color: #111;
   font-weight: 700;
+}
+
+.charts-container svg {
+  display: block;
+  margin: auto;
 }

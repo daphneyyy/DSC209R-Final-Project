@@ -193,7 +193,7 @@ function prepareAggregates(listingsFiltered) {
 
 function setupMap(geo) {
   const svg = d3.select("svg");
-  const width = 800,
+  const width = 700,
     height = 550;
   const projection = d3.geoMercator().fitSize([width, height], geo);
   const path = d3.geoPath().projection(projection);
@@ -211,14 +211,54 @@ function setupMap(geo) {
   return svg;
 }
 
+function resetTooltip(tooltip) {
+  tooltip
+    .style("opacity", 1)
+    .html('<span class="reset-graph">Reset the view</span>');
+}
+
 function setupEventHandlers(svg) {
   const tooltip = d3.select(".tooltip");
   const tooltipLegends = d3.select(".tooltip-legends");
+
+  let prevToolTipContent = tooltip.html();
+  svg
+    .on("mouseenter", function (event) {
+      d3.select(this).style("cursor", "pointer");
+      resetTooltip(tooltip);
+    })
+    .on("click", function (event) {
+      const tag = event.target.tagName.toLowerCase();
+      if (tag !== "path" && tag !== "text" && tag !== "rect" && tag !== "line") {
+        d3.select("#selected-neighborhood-name").text("All");
+        drawCompanionGraphs("All");
+        d3.select(
+          `#room-control button[data-value="${selectedRoomType}"]`
+        ).classed("active", false);
+        selectedRoomType = "All";
+        d3.select('#room-control button[data-value="All"]').classed(
+          "active",
+          true
+        );
+        resetMapColor(svg, d3.select("#metric-toggle").node());
+      }
+    })
+    .on("mousemove", function (event) {
+      tooltip
+        .style("left", event.pageX + 10 + "px")
+        .style("top", event.pageY + 10 + "px")
+        .style("font-size", "15px");
+    })
+    .on("mouseleave", function (event) {
+      tooltip.style("opacity", 0);
+      d3.select(this).style("cursor", "default");
+    });
 
   let prevColor;
   svg
     .selectAll("path")
     .on("mouseenter", function (event, d) {
+      tooltip.html(prevToolTipContent);
       d3.select(this).style("cursor", "pointer");
       const name = d.properties.neighbourhood;
 
@@ -259,13 +299,8 @@ function setupEventHandlers(svg) {
       prevColor = d3.select(this).attr("fill");
       d3.select(this).attr("fill", "#ccc");
     })
-    .on("mousemove", function (event) {
-      tooltip
-        .style("left", event.pageX + 10 + "px")
-        .style("top", event.pageY + 10 + "px");
-    })
     .on("mouseleave", function () {
-      tooltip.style("opacity", 0);
+      resetTooltip(tooltip);
       if (prevColor !== null) {
         d3.select(this).attr("fill", prevColor);
       }
@@ -276,13 +311,6 @@ function setupEventHandlers(svg) {
       d3.select("#selected-neighborhood-name").text(name);
       drawCompanionGraphs(name);
     });
-
-  svg.on("click", function (event) {
-    if (event.target.tagName !== "path") {
-      d3.select("#selected-neighborhood-name").text("All");
-      drawCompanionGraphs("All");
-    }
-  });
 }
 
 function colorByRoomType(name) {
@@ -338,7 +366,7 @@ function colorByReview(name) {
   return colorEqual;
 }
 
-function updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg) {
+function updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg, ifColor=false) {
   roomTypeSelector.on("click", function (event) {
     const clicked = event.target;
 
@@ -350,21 +378,16 @@ function updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg) {
       resetMapColor(svg, reviewCheckBox);
       return;
     }
-    // if (selectedRoomType === "All") {
-    //   resetMapColor(svg, reviewCheckBox);
-    //   drawCompanionGraphs("All");
-    //   return;
-    // } else {
-    //   drawCompanionGraphs("All");
-    // }
-    svg.selectAll("path").attr("fill", (d) => {
-      const name = d.properties.neighbourhood;
-      if (reviewCheckBox.checked) {
-        return colorByReview(name);
-      } else {
-        return colorByRoomType(name);
-      }
-    });
+    if (ifColor) {
+      svg.selectAll("path").attr("fill", (d) => {
+        const name = d.properties.neighbourhood;
+        if (reviewCheckBox.checked) {
+          return colorByReview(name);
+        } else {
+          return colorByRoomType(name);
+        }
+      });
+    }
   });
 }
 
@@ -505,6 +528,6 @@ Promise.all([
   drawCompanionGraphs("All");
   setupEventHandlers(svg);
 
-  updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg);
+  updateBasedOnRoomType(roomTypeSelector, reviewCheckBox, svg, true);
   updateBasedOnReview(reviewCheckBox, svg);
 });
