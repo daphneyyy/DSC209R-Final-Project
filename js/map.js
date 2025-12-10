@@ -218,7 +218,7 @@ function resetTooltip(tooltip) {
 }
 
 function setupEventHandlers(svg) {
-  const tooltip = d3.select(".tooltip");
+  const tooltip = d3.select(".map-tooltip");
   const tooltipLegends = d3.select(".tooltip-legends");
 
   let prevToolTipContent = tooltip.html();
@@ -452,6 +452,7 @@ function drawCompanionGraphs(name) {
     //   countsMap2: cachedAggregates.nonSuperHostRoomTypeCountsAll,
     //   roomTypeColor: roomTypeColor,
     // });
+    addChartsTooltips();
   } else {
     drawBarChart({
       dataMap: cachedAggregates.estimatedRevenue.get(name),
@@ -489,7 +490,27 @@ function drawCompanionGraphs(name) {
     //   countsMap2: nonMap,
     //   roomTypeColor: roomTypeColor,
     // });
+    addChartsTooltips();
   }
+}
+
+function addChartsTooltips() {
+  const tooltip = d3.select(".line-tooltip");
+
+  d3.selectAll(".avg-line")
+    .on("mousemove", function (event) {
+      const unit = d3.select(this).attr("data-unit");
+      const value = +d3.select(this).attr("data-value");
+
+      tooltip
+        .style("opacity", 1)
+        .html(`Average: ${unit}${Number(value.toFixed(2)).toLocaleString()}`)
+        .style("left", event.pageX + 12 + "px")
+        .style("top", event.pageY - 20 + "px");
+    })
+    .on("mouseleave", function () {
+      tooltip.style("opacity", 0);
+    });
 }
 
 Promise.all([

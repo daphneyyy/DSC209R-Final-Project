@@ -350,51 +350,33 @@ export function drawBarChart({
     Array.from(dataMap.values(), (m) => m.get("t") || 0)
   );
   if (avgSuper) {
-    svg
-      .append("line")
-      .classed("dotted-line", true)
-      .attr("x1", margin.left)
-      .attr("x2", width - margin.right)
-      .attr("y1", y(avgSuper))
-      .attr("y2", y(avgSuper))
-      .attr("stroke", d3.color(colors[0]).darker(1.2))
-      .attr("stroke-width", 1.2)
-      .attr("stroke-dasharray", "4 4")
-      .attr("opacity", 1);
-    svg
-      .append("text")
-      .classed("dotted-line-text", true)
-      .attr("x", width - margin.right + 6)
-      .attr("y", y(avgSuper))
-      .attr("dominant-baseline", "middle")
-      .style("font-size", "12px")
-      .style("fill", d3.color(colors[0]).darker(1.4))
-      .text(`${unit}${Number(avgSuper.toFixed(2)).toLocaleString()}`);
+    addLine(
+      svg,
+      "avg-line avg-line-super",
+      margin.left,
+      width - margin.right,
+      y(avgSuper),
+      y(avgSuper),
+      colors[0],
+      avgSuper,
+      unit
+    );
   }
   const avgNonSuper = d3.mean(
     Array.from(dataMap.values(), (m) => m.get("f") || 0)
   );
   if (avgNonSuper) {
-    svg
-      .append("line")
-      .classed("dotted-line", true)
-      .attr("x1", margin.left)
-      .attr("x2", width - margin.right)
-      .attr("y1", y(avgNonSuper))
-      .attr("y2", y(avgNonSuper))
-      .attr("stroke", d3.color(colors[1]).darker(1.2))
-      .attr("stroke-width", 1.2)
-      .attr("stroke-dasharray", "4 4")
-      .attr("opacity", 1);
-    svg
-      .append("text")
-      .classed("dotted-line-text", true)
-      .attr("x", width - margin.right + 6)
-      .attr("y", y(avgNonSuper))
-      .attr("dominant-baseline", "middle")
-      .style("font-size", "12px")
-      .style("fill", d3.color(colors[1]).darker(1.4))
-      .text(`${unit}${Number(avgNonSuper.toFixed(2)).toLocaleString()}`);
+    addLine(
+      svg,
+      "avg-line avg-line-non-super",
+      margin.left,
+      width - margin.right,
+      y(avgNonSuper),
+      y(avgNonSuper),
+      colors[1],
+      avgNonSuper,
+      unit
+    );
   }
   createTopLegend(svg, width, margin, extraText);
 }
@@ -530,44 +512,53 @@ export function drawReviewScoreHistogram({
   let xNonSuper = x(avgReviewNonSuper);
 
   if (avgReviewSuper) {
-    svg
-      .append("line")
-      .attr("x1", xSuper)
-      .attr("x2", xSuper)
-      .attr("y1", margin.top)
-      .attr("y2", height - margin.bottom)
-      .attr("stroke", d3.color(colors[0]).darker(1.2))
-      .attr("stroke-width", 1.2)
-      .attr("stroke-dasharray", "4 4")
-      .attr("opacity", 1);
-    svg
-      .append("text")
-      .attr("x", xSuper - 10)
-      .attr("y", margin.top - 6)
-      .attr("dominant-baseline", "middle")
-      .style("font-size", "12px")
-      .style("fill", d3.color(colors[0]).darker(1.4))
-      .text(Number(avgReviewSuper.toFixed(2)));
+    addLine(
+      svg,
+      "avg-line avg-line-super",
+      xSuper,
+      xSuper,
+      margin.top,
+      height - margin.bottom,
+      colors[0],
+      Number(avgReviewSuper.toFixed(2))
+    );
   }
   if (avgReviewNonSuper) {
-    svg
-      .append("line")
-      .attr("x1", xNonSuper)
-      .attr("x2", xNonSuper)
-      .attr("y1", margin.top)
-      .attr("y2", height - margin.bottom)
-      .attr("stroke", d3.color(colors[1]).darker(1.2))
-      .attr("stroke-width", 1.2)
-      .attr("stroke-dasharray", "4 4")
-      .attr("opacity", 1);
-    svg
-      .append("text")
-      .attr("x", xNonSuper - 10)
-      .attr("y", margin.top - 6)
-      .attr("dominant-baseline", "middle")
-      .style("font-size", "12px")
-      .style("fill", d3.color(colors[1]).darker(1.4))
-      .text(Number(avgReviewNonSuper.toFixed(2)));
+    addLine(
+      svg,
+      "avg-line avg-line-non-super",
+      xNonSuper,
+      xNonSuper,
+      margin.top,
+      height - margin.bottom,
+      colors[1],
+      Number(avgReviewNonSuper.toFixed(2))
+    );
   }
   createTopLegend(svg, width, margin, "Avg review");
+}
+
+function addLine(svg, cls, x1, x2, y1, y2, color, value, unit="") {
+  svg
+    .append("line")
+    .attr("class", cls)
+    .attr("data-value", value)
+    .attr("data-unit", unit)
+    .attr("x1", x1)
+    .attr("x2", x2)
+    .attr("y1", y1)
+    .attr("y2", y2)
+    .attr("stroke", d3.color(color).darker(1.2))
+    .attr("stroke-width", 2)
+    .attr("stroke-dasharray", "20 4")
+    .attr("opacity", 1)
+    .on("mouseenter", function (event) {
+      d3.select(this).style("cursor", "pointer");
+    })
+    .on("mouseover", function () {
+      d3.select(this).attr("stroke-width", 2.5);
+    })
+    .on("mouseout", function () {
+      d3.select(this).attr("stroke-width", 2);
+    });
 }

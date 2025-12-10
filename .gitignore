@@ -5,3 +5,4 @@ data/sept-1-25/*.gz
 data/sept-1-25/reviews*
 .DS_Store
 *.ipynb
+*.mp4
