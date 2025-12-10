@@ -128,6 +128,8 @@ function removeExistingChartElements(svg) {
   svg.selectAll(".dotted-line").remove();
   svg.selectAll(".dotted-line-text").remove();
   svg.selectAll(".no-data-text").remove();
+  svg.selectAll(".non").remove();
+  svg.selectAll(".super").remove();
 }
 
 function removeAllChartElements(svg) {
@@ -218,8 +220,6 @@ export function drawPie({ svgId, countsMap, roomTypeColor }) {
     .style("pointer-events", "none");
 }
 
-
-
 export function drawBarChart({
   dataMap,
   svgId,
@@ -241,7 +241,7 @@ export function drawBarChart({
     return;
   }
 
-  const margin = { top: 90, right: 80, bottom: 50, left: 80 };
+  const margin = { top: 90, right: 20, bottom: 50, left: 80 };
   categories = (categories === "All")
     ? Array.from(dataMap.keys())
     : [categories];
@@ -391,7 +391,7 @@ export function drawReviewScoreHistogram({
   yLabel = "Count"
 }) {
   const svg = d3.select(svgId).attr("width", width).attr("height", height);
-  svg.selectAll("*").remove();
+  removeExistingChartElements(svg);
 
   const margin = { top: 80, right: 20, bottom: 50, left: 65 };
 
@@ -404,24 +404,19 @@ export function drawReviewScoreHistogram({
     .map((d) => +d.review_scores_rating);
 
   if (superScores.length === 0 && nonSuperScores.length === 0) {
+    removeAllChartElements(svg);
     drawEmptyChart(svg, width, height, title, xLabel, yLabel);
     return;
   }
 
-  const validMins = [];
-  const validMaxs = [];
-
-  if (superScores.length > 0) {
-    validMins.push(d3.min(superScores));
-    validMaxs.push(d3.max(superScores));
-  }
-  if (nonSuperScores.length > 0) {
-    validMins.push(d3.min(nonSuperScores));
-    validMaxs.push(d3.max(nonSuperScores));
-  }
-
-  const minScore = d3.min(validMins);
-  const maxScore = d3.max(validMaxs);
+  const minScore = d3.min([
+    d3.min(superScores) ?? Infinity,
+    d3.min(nonSuperScores) ?? Infinity,
+  ]);
+  const maxScore = d3.max([
+    d3.max(superScores) ?? -Infinity,
+    d3.max(nonSuperScores) ?? -Infinity,
+  ]);
 
   const x = d3
     .scaleLinear()
@@ -438,48 +433,71 @@ export function drawReviewScoreHistogram({
     .domain([
       0,
       Math.max(
-        d3.max(binsSuper, (d) => d.length),
-        d3.max(binsNon, (d) => d.length)
+        d3.max(binsSuper, (d) => d.length) || 0,
+        d3.max(binsNon, (d) => d.length) || 0
       ),
     ])
     .nice()
     .range([height - margin.bottom, margin.top]);
 
-  svg
-    .append("g")
-    .selectAll("rect.super")
+  let xAxisG = svg.select(".x-axis-hist");
+  let yAxisG = svg.select(".y-axis-hist");
+
+  if (xAxisG.empty()) {
+    xAxisG = svg
+      .append("g")
+      .attr("class", "x-axis-hist")
+      .attr("transform", `translate(0,${height - margin.bottom})`);
+  }
+  if (yAxisG.empty()) {
+    yAxisG = svg
+      .append("g")
+      .attr("class", "y-axis-hist")
+      .attr("transform", `translate(${margin.left},0)`);
+  }
+
+  const xAxis = d3.axisBottom(x);
+  const yAxis = d3.axisLeft(y);
+
+  xAxisG.transition().duration(1000).ease(d3.easeCubic).call(xAxis);
+  yAxisG.transition().duration(1000).ease(d3.easeCubic).call(yAxis);
+
+  const barGroupSuper = svg.append("g").attr("class", "super-group");
+  const barGroupNon = svg.append("g").attr("class", "non-group");
+
+  barGroupSuper
+    .selectAll("rect")
     .data(binsSuper)
     .join("rect")
     .attr("class", "super")
     .attr("x", (d) => x(d.x0) + 1)
-    .attr("y", (d) => y(d.length))
     .attr("width", (d) => Math.max(0, x(d.x1) - x(d.x0) - 1))
-    .attr("height", (d) => y(0) - y(d.length))
     .attr("fill", colors[0])
-    .attr("opacity", 0.6);
+    .attr("opacity", 0.6)
+    .attr("y", y(0))
+    .attr("height", 0)
+    .transition()
+    .duration(800)
+    .ease(d3.easeCubicOut)
+    .attr("y", (d) => y(d.length))
+    .attr("height", (d) => y(0) - y(d.length));
 
-  svg
-    .append("g")
-    .selectAll("rect.non")
+  barGroupNon
+    .selectAll("rect")
     .data(binsNon)
     .join("rect")
     .attr("class", "non")
     .attr("x", (d) => x(d.x0) + 1)
-    .attr("y", (d) => y(d.length))
     .attr("width", (d) => Math.max(0, x(d.x1) - x(d.x0) - 1))
-    .attr("height", (d) => y(0) - y(d.length))
     .attr("fill", colors[1])
-    .attr("opacity", 0.6);
-
-  svg
-    .append("g")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x));
-
-  svg
-    .append("g")
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y));
+    .attr("opacity", 0.6)
+    .attr("y", y(0))
+    .attr("height", 0)
+    .transition()
+    .duration(800)
+    .ease(d3.easeCubicOut)
+    .attr("y", (d) => y(d.length))
+    .attr("height", (d) => y(0) - y(d.length));
 
   svg
     .append("text")
@@ -499,7 +517,7 @@ export function drawReviewScoreHistogram({
 
   svg
     .append("text")
-    .attr("transform", `rotate(-90)`)
+    .attr("transform", "rotate(-90)")
     .attr("x", -height / 2)
     .attr("y", 20)
     .attr("text-anchor", "middle")
@@ -508,15 +526,13 @@ export function drawReviewScoreHistogram({
 
   const avgReviewSuper = d3.mean(superScores);
   const avgReviewNonSuper = d3.mean(nonSuperScores);
-  let xSuper = x(avgReviewSuper);
-  let xNonSuper = x(avgReviewNonSuper);
 
   if (avgReviewSuper) {
     addLine(
       svg,
       "avg-line avg-line-super",
-      xSuper,
-      xSuper,
+      x(avgReviewSuper),
+      x(avgReviewSuper),
       margin.top,
       height - margin.bottom,
       colors[0],
@@ -527,8 +543,8 @@ export function drawReviewScoreHistogram({
     addLine(
       svg,
       "avg-line avg-line-non-super",
-      xNonSuper,
-      xNonSuper,
+      x(avgReviewNonSuper),
+      x(avgReviewNonSuper),
       margin.top,
       height - margin.bottom,
       colors[1],

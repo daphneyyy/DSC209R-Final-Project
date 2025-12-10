@@ -23,8 +23,6 @@
 
             <p class="note">Note: As of 2025-12-01, this is the most recent dataset available.</p>
         </header>
-        <section id="description">
-        </section>
 
         <section id="graphs">
             <div id="map-and-graph-container">
@@ -61,9 +59,9 @@
                         <span class="label">Neighborhood:</span>
                         <span id="selected-neighborhood-name" class="neighborhood-name">All</span>
                     </div>
+                    <svg id="review-score-hist" class="hist"></svg>
                     <svg id="avg-revenue-bar" class="bar"></svg>
                     <svg id="total-count-bar" class="bar"></svg>
-                    <svg id="review-score-hist" class="hist"></svg>
                     <div id="avg-tooltip" class="tooltip line-tooltip"></div>
                 </div>
             </div>
@@ -100,8 +98,19 @@
                     </tbody>
                 </table>
             </div>
+        </section>
 
+        <section id="conclusion">
+            <h2>Author's Note</h2>
+            <p>
+                Through this interactive analysis of Airbnb listings in San Francisco, we observed significant differences between Superhosts and Non-superhosts in terms of revenue patterns, listing distribution, and review scores. 
 
+                
+                Looking across neighborhoods, room types, revenues, and reviews, a consistent message emerges: there is no single “Superhost effect.” Superhosts do excel in many categories, but the city’s diverse neighborhoods reveal pockets where Non-superhosts thrive as well. These graphs remind us that Airbnb performance is ultimately a combination of host experience, listing type, and location, with the Superhost badge being only part of the story.
+            </p>
+            <p>
+                Through this interactive analysis of Airbnb listings in San Francisco, we observed significant differences between Superhosts and Non-superhosts in terms of revenue patterns, listing distribution, and review scores. Superhosts generally lead in average revenue and maintain higher review scores, indicating their commitment to quality service. The distribution of listings also highlighted that Superhosts tend to dominate in certain neighborhoods, suggesting a strategic approach to location selection. Overall, becoming a Superhost appears to offer tangible benefits in the competitive Airbnb market of San Francisco.
+            </p>
         </section>
 
     </body>
