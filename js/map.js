@@ -1,24 +1,8 @@
-// import mapboxgl from "https://cdn.jsdelivr.net/npm/mapbox-gl@2.15.0/+esm";
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 import {
-  drawDoublePies,
   drawBarChart,
   drawReviewScoreHistogram,
 } from "./draw.js";
-
-// console.log("Mapbox GL JS Loaded:", mapboxgl);
-
-// mapboxgl.accessToken =
-//   "pk.eyJ1IjoiZGFwaG5leXl5IiwiYSI6ImNtaHlscHlkMTAzNHEybHE0NmJwazZ1eXAifQ.nWfk6iea3oOKQF-lPCWB-w";
-
-// const map = new mapboxgl.Map({
-//   container: "map",
-//   style: "mapbox://styles/mapbox/streets-v12",
-//   center: [-122.4439697, 37.7774487],
-//   zoom: 12,
-//   minZoom: 5,
-//   maxZoom: 18,
-// });
 
 const root = getComputedStyle(document.documentElement);
 const colorA = root.getPropertyValue("--color-a").trim();
@@ -428,7 +412,6 @@ function drawCompanionGraphs(name) {
       yLabel: "Average Est. Revenue ($)",
       unit: "$",
       extraText: "Avg Est. revenue",
-      // categories: selectedRoomType // TODO: fix this
     });
     drawBarChart({
       dataMap: cachedAggregates.totalListingsAll,
@@ -438,20 +421,12 @@ function drawCompanionGraphs(name) {
       yLabel: "Total Listings",
       unit: "",
       extraText: "Avg listings",
-      // categories: selectedRoomType // TODO: fix this
     });
     drawReviewScoreHistogram({
       svgId: "#review-score-hist",
       listings: cachedAggregates.allData,
       title: "Review Score Distribution by Host Type",
     });
-    // drawDoublePies({
-    //   svgId1: "#pie1-superhost",
-    //   countsMap1: cachedAggregates.superHostRoomTypeCountsAll,
-    //   svgId2: "#pie2-non-superhost",
-    //   countsMap2: cachedAggregates.nonSuperHostRoomTypeCountsAll,
-    //   roomTypeColor: roomTypeColor,
-    // });
     addChartsTooltips();
   } else {
     drawBarChart({
@@ -462,7 +437,6 @@ function drawCompanionGraphs(name) {
       yLabel: "Average Est. Revenue ($)",
       unit: "$",
       extraText: "Avg Est. revenue",
-      // categories: selectedRoomType // TODO: fix this
     });
     drawBarChart({
       dataMap: cachedAggregates.totalListings.get(name),
@@ -472,7 +446,6 @@ function drawCompanionGraphs(name) {
       yLabel: "Total Listings",
       unit: "",
       extraText: "Avg listings",
-      // categories: selectedRoomType // TODO: fix this
     });
     drawReviewScoreHistogram({
       svgId: "#review-score-hist",
@@ -481,15 +454,6 @@ function drawCompanionGraphs(name) {
       ),
       title: "Review Score Distribution by Host Type",
     });
-    // const superMap = cachedAggregates.superHostRoomTypeCounts.get(name) || new Map();
-    // const nonMap = cachedAggregates.nonSuperHostRoomTypeCounts.get(name) || new Map();
-    // drawDoublePies({
-    //   svgId1: "#pie1-superhost",
-    //   countsMap1: superMap,
-    //   svgId2: "#pie2-non-superhost",
-    //   countsMap2: nonMap,
-    //   roomTypeColor: roomTypeColor,
-    // });
     addChartsTooltips();
   }
 }

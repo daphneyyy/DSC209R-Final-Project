@@ -8,7 +8,6 @@
   --color-greater-than: rgba(255, 140, 0, 0.774);
 }
 
-
 body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   display: flex;
@@ -62,7 +61,7 @@ header {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1.25em; 
+  gap: 1.25em;
   font-size: 0.9em;
   margin-block: 1em;
 }
@@ -198,4 +197,17 @@ input:checked + .slider:before {
 .charts-container svg {
   display: block;
   margin: auto;
+}
+
+.author-name {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #777;
+  > a {
+    text-decoration: none;
+    color: #777;
+  }
+  > a:hover {
+    text-decoration: underline;
+  }
 }

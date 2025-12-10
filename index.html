@@ -11,17 +11,23 @@
         <script src="js/map.js" type="module"></script>
     </head>
     <body>
-       <header>
-            <h1 class="title">How do Superhosts and Non-superhosts differ across San Francisco?</h1>
+        <header>
+            <h1 class="title">How do Superhosts and Non-superhosts differ across
+                San Francisco?</h1>
 
             <p class="subtitle">
-                An interactive analysis of Airbnb listings in <b>San Francisco</b>, analyzing differences in <b>revenue patterns</b>, <b>listing distribution</b>, and <b>review scores</b> using dataset from 
-                <a href="https://insideairbnb.com/get-the-data/" target="_blank" rel="noopener noreferrer">
+                An interactive analysis of Airbnb listings in <b>San
+                    Francisco</b>, analyzing differences in <b>revenue
+                    patterns</b>, <b>listing distribution</b>, and <b>review
+                    scores</b> using dataset from
+                <a href="https://insideairbnb.com/get-the-data/" target="_blank"
+                    rel="noopener noreferrer">
                     Inside Airbnb
                 </a> (scraped 2025-09-01).
             </p>
 
-            <p class="note">Note: As of 2025-12-01, this is the most recent dataset available.</p>
+            <p class="note">Note: As of 2025-12-01, this is the most recent
+                dataset available.</p>
         </header>
 
         <section id="graphs">
@@ -31,7 +37,8 @@
                         <div class="filter-block">
                             <span class="filter-title">Room Type</span>
                             <div class="segmented-control" id="room-control">
-                                <button class="active" data-value="All">All</button>
+                                <button class="active"
+                                    data-value="All">All</button>
                             </div>
                         </div>
                         <div class="filter-block">
@@ -44,20 +51,25 @@
                                 <span>Average Review Scores</span>
                             </div>
                         </div>
-                        <div class="note">(Click on each neighborhood on the map for more insights.)</div>
+                        <div class="note">(Click on each neighborhood on the map
+                            for more insights.)</div>
                     </div>
                     <svg></svg>
                     <div class="legends">
                         <span class="legends-label">Legend:</span>
-                        <div style="--color: var(--color-greater-than)" class="legend">Superhosts Lead</div>
-                        <div style="--color: var(--color-equal)" class="legend">Balanced</div>
-                        <div style="--color: var(--color-less-than)" class="legend">Non-Superhosts Lead</div>
+                        <div style="--color: var(--color-greater-than)"
+                            class="legend">Superhosts Lead</div>
+                        <div style="--color: var(--color-equal)"
+                            class="legend">Balanced</div>
+                        <div style="--color: var(--color-less-than)"
+                            class="legend">Non-Superhosts Lead</div>
                     </div>
                 </div>
                 <div class="charts-container">
                     <div class="bar-chart-title">
                         <span class="label">Neighborhood:</span>
-                        <span id="selected-neighborhood-name" class="neighborhood-name">All</span>
+                        <span id="selected-neighborhood-name"
+                            class="neighborhood-name">All</span>
                     </div>
                     <svg id="review-score-hist" class="hist"></svg>
                     <svg id="avg-revenue-bar" class="bar"></svg>
@@ -101,15 +113,20 @@
         </section>
 
         <section id="conclusion">
-            <h2>Author's Note</h2>
+            <h2>Author's Note <span class="author-name">— by <a href="https://daphneyyy.github.io/" target="_blank" rel="noopener noreferrer">Xuewen Yang</a></span></h2>
             <p>
-                Through this interactive analysis of Airbnb listings in San Francisco, we observed significant differences between Superhosts and Non-superhosts in terms of revenue patterns, listing distribution, and review scores. 
-
-                
-                Looking across neighborhoods, room types, revenues, and reviews, a consistent message emerges: there is no single “Superhost effect.” Superhosts do excel in many categories, but the city’s diverse neighborhoods reveal pockets where Non-superhosts thrive as well. These graphs remind us that Airbnb performance is ultimately a combination of host experience, listing type, and location, with the Superhost badge being only part of the story.
+                Through this interactive analysis of Airbnb listings in San Francisco, we observed
+                clear differences between Superhosts and Non-superhosts across revenue, listing
+                distribution, and review scores. Superhosts generally lead in most neighborhoods,
+                but notable exceptions like <b>Downtown/Civic Center</b> reveal that Non-superhosts
+                (often <b>hotel-style listings</b>) can earn <b>much higher revenue</b> despite
+                having <b>lower review scores</b>.
             </p>
             <p>
-                Through this interactive analysis of Airbnb listings in San Francisco, we observed significant differences between Superhosts and Non-superhosts in terms of revenue patterns, listing distribution, and review scores. Superhosts generally lead in average revenue and maintain higher review scores, indicating their commitment to quality service. The distribution of listings also highlighted that Superhosts tend to dominate in certain neighborhoods, suggesting a strategic approach to location selection. Overall, becoming a Superhost appears to offer tangible benefits in the competitive Airbnb market of San Francisco.
+                These contrasts highlight that host performance varies widely across the city. While
+                Superhost status often provides an advantage, <b>location and room type play an
+                    equally important role</b> in determining outcomes in San Francisco's Airbnb
+                market.
             </p>
         </section>
 
